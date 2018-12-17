@@ -71,7 +71,9 @@ class App {
     private void Dispose() {
         synchronized(mutexMap){
             for (Map.Entry<String, ClientHandler> entry : threadMap.entrySet()) {
-                entry.getValue().stop();
+                try {
+                entry.getValue().socket.close();
+                } catch (Exception e) { }
             }
             try {
                 socket.close();
@@ -79,6 +81,7 @@ class App {
             System.out.println("Cleaned");
         }
         cerrar.set(true);
+        System.out.println("Xao");
     }
 
     private static boolean isSocketAliveUitlity(String hostName, int port) {
@@ -123,9 +126,6 @@ class App {
                         }
                     }
                 }
-                /*try {
-                    Thread.sleep(50);
-                } catch(Exception e) {}*/
             }
         }
     }
@@ -166,9 +166,7 @@ class App {
                             socketWriter.flush();
                         }
                     }
-                    //System.out.println(op.toString());
                 }
-                socket.close(); //OJO
             }
             catch (Exception e) { }
             finally {
@@ -184,18 +182,22 @@ class App {
     }
 
     public static void main(String[] args) {
-        App app = null;
         try {
-            app = new App();
+            final App app = new App();
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                   System.out.println("Matando servidor....");
+                   try {
+                      app.Dispose();
+                   } catch (Exception e) {
+                   }
+                }
+             });
             app.Listen();
         }
         catch(Exception e) {
             e.printStackTrace();
-        }
-        finally {
-            if(app != null) {
-                app.Dispose();
-            }
         }
     }
 }

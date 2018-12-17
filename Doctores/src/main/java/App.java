@@ -37,7 +37,7 @@ public class App {
                     break;
                 }
                 else if(in == 2) {
-                    bullyClient.SendOp(0, "bailar", Operacion.BROADCAST_LOCAL);
+                    bullyClient.SendOp(0, "bailar", Operacion.BROADCAST);
                 }
                 else if(in == 3) {
                     bullyClient.SendOp(2, "cantar", "none");
