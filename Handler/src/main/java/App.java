@@ -154,7 +154,7 @@ class App {
                 String msj = null;
                 while((msj = socketReader.readLine()) != null) {
                     Operacion op = gson.fromJson(msj, Operacion.class);
-                    if(Objects.equals(op.getDest(), Operacion.BROADCAST_LOCAL)) {
+                    if(Objects.equals(op.getDest(), Operacion.BROADCAST)) {
                         synchronized(mutexPendientes) {
                             opPendientes.add(op);
                         }
