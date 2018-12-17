@@ -112,23 +112,36 @@ class App {
                     
                     while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
-                        if(Objects.equals(op.getDest(),Operacion.BROADCAST)) {
-                            String[] address = op.getOrigen().split(":");
-                            if(Objects.equals(address[0], direccionIp)) {
-                                synchronized(mutexMachineMap) {
+                        synchronized(mutexMachineMap) {
+                            //Recibe mensaje de la subred y envía al resto (BROADCAST )
+                            if(Objects.equals(op.getDest(),Operacion.BROADCAST)) {
+                                String[] address = op.getOrigen().split(":");
+                                if(Objects.equals(address[0], direccionIp)) {
                                     for (Map.Entry<String, Listener> machine : machineMap.entrySet()) {
                                         try {
                                             machine.getValue().SendOp(op);
                                         } catch(Exception e) {
-                                            System.out.println("No se pudo enviar mensaje a " + machine.getKey() );
+                                            System.out.println("MAQUINA: No se pudo enviar mensaje a " + machine.getKey() );
                                         }
+                                    }
+                                }
+                            }
+                            //Recibe mensaje de la subred y envía fuera de la subred (otra maquina)
+                            else {
+                                String[] address = op.getDest().split(":");
+                                if(!Objects.equals(address[0], direccionIp)) {
+                                    try {
+                                        machineMap.get(address[0]).SendOp(op);
+                                    } catch(Exception e) {
+                                        System.out.println("MAQUINA: No se pudo enviar mensaje a " + address[0] );
                                     }
                                 }
                             }
                         }
                         synchronized(mutexMap) {
+                            //Recepcion de mensajes, reenvío hacia la subred
                             for (Map.Entry<String, ClientHandler> entry : threadMap.entrySet()) {
-                                if(Objects.equals(entry.getKey(), op.getDest()) || Objects.equals(op.getDest(), Operacion.BROADCAST)) {
+                                if(Objects.equals(op.getDest(), entry.getKey()) || Objects.equals(op.getDest(), Operacion.BROADCAST)) {
                                     try {
                                         synchronized(entry.getValue().mutexWriter) {
                                             entry.getValue().socketWriter.write(gson.toJson(op));
@@ -136,7 +149,7 @@ class App {
                                             entry.getValue().socketWriter.flush();
                                         }
                                     } catch(Exception e) {
-                                        System.out.println("No se pudo enviar mensaje a " + entry.getKey() );
+                                        System.out.println("Mensaje directo: No se pudo enviar mensaje a " + entry.getKey() );
                                     }
                                 }
                             }

@@ -66,8 +66,8 @@ public class Listener extends Thread {
             Conectar();
             String msj = null;
             while((msj = socketReader.readLine()) != null) {
-                Operacion op = gson.fromJson(msj, Operacion.class);
-                System.out.println(op.toString());
+                //Operacion op = gson.fromJson(msj, Operacion.class);
+                //System.out.println(op.toString());
             }
         } catch (Exception e) {  }
         System.out.println("Adios");
