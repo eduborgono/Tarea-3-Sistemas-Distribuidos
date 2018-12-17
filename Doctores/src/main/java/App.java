@@ -31,22 +31,28 @@ public class App {
             BullyClient bullyClient = new BullyClient(id, experiencia, estudios);
             Scanner input = new Scanner(System.in);
             int in;
-            while((in = input.nextInt()) != 0) {
-                if(in == 1) {
-                    bullyClient.Dispose();
-                    break;
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    System.out.println("Matando cliente....");
+                    try {
+                        bullyClient.Dispose();
+                    } catch (Exception e) { }
                 }
-                else if(in == 2) {
+            });
+            while((in = input.nextInt()) != 0) {
+                
+                if(in == 1) {
                     bullyClient.SendOp(0, "bailar", Operacion.BROADCAST);
                 }
-                else if(in == 3) {
+                else if(in == 2) {
                     bullyClient.SendOp(2, "cantar", "none");
                 }
             } 
+            bullyClient.Dispose();
             
         } catch(Exception e) {
-            //System.err.println(e.getCause().getLocalizedMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 }

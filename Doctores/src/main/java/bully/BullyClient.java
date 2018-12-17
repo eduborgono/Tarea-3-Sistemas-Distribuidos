@@ -29,7 +29,10 @@ public class BullyClient {
 
     public void SendOp(int paciente, String procedimeinto, String destino) throws IOException {
         Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
-        op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), destino);
+        String destFiltrado;
+        if(destino == "none") destFiltrado = bl.getDireccionIp() + ":" + bl.getPuerto();
+        else destFiltrado = destino;
+        op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), destFiltrado);
         bl.SendOp(op);
     }
 
