@@ -1,14 +1,20 @@
+*.iml
 .gradle
-/build/
+.settings
+.vscode
+/local.properties
+.idea/*
+!.idea/copyright
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+ktlint
 
-# Ignore Gradle GUI config
-gradle-app.setting
+# Java build artifacts class files
+*.class
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
-# Cache of project
-.gradletasknamecache
-
-# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
+# other generated files
+bin/
+gen/
+build/
