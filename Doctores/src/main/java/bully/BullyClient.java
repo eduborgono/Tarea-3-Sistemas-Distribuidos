@@ -73,8 +73,9 @@ public class BullyClient {
             op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
             op.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
             bl.SendOp(op);
-            tsEleccion.set(bl.getDireccionIp() + ":" + bl.getPuerto());
+            tsEleccion.set(null);
             coordinador.set(true);
+            coordinadorDir.set(bl.getDireccionIp() + ":" + bl.getPuerto());
             System.out.println("\t\tAhora yo soy el lider");
         } catch (Exception e) { }
     }
