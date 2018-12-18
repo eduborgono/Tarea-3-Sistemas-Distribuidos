@@ -106,35 +106,35 @@ public class BullyClient {
             } catch(Exception e) { }
             while(!salir.get()) {
                 synchronized(mutexOp) {
-                    while(opPendientes.size() > 0) {
-                        if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                    if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                        try {
+                            System.out.println(tsEleccion.get());
+                            Thread.sleep(1000);
+                        } catch(Exception e) { }
+                        if(tsEleccion.get() != null) {
                             try {
-                                System.out.println(tsEleccion.get());
-                                Thread.sleep(1000);
-                            } catch(Exception e) { }
-                            if(tsEleccion.get() != null) {
-                                try {
-                                    long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
-                                    if(diffInSeconds > 10) {
-                                        AscenderNodo();
-                                    } 
-                                } catch (Exception e) { }
-                            }
+                                long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
+                                if(diffInSeconds > 10) {
+                                    AscenderNodo();
+                                } 
+                            } catch (Exception e) { }
                         }
-                        else {
-                            if(coordinadorDir.get() != null && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
-                                synchronized(idOperacionMutex) {
-                                    for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
-                                        long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
-                                        //Murio el coordinador
-                                        if(diffInSeconds > 10) {
-                                            EmpezarEleccion();
-                                            break;
-                                        }
+                    }
+                    else {
+                        if(coordinadorDir.get() != null && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                            synchronized(idOperacionMutex) {
+                                for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
+                                    long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
+                                    //Murio el coordinador
+                                    if(diffInSeconds > 10) {
+                                        EmpezarEleccion();
+                                        break;
                                     }
                                 }
                             }
                         }
+                    }
+                    while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
                         switch(op.getEspecial()) {
                             case Operacion.DISCOVERY_REQUEST:
@@ -172,6 +172,7 @@ public class BullyClient {
 
                             case Operacion.NUEVO_COORDINADOR_RESPONSE:
                                 if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                                    System.out.println("\tEsperando nuevo coordinador");
                                     coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_2);
                                     tsEleccion.set(null);
                                 }
