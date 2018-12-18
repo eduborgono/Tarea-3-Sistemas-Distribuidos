@@ -99,12 +99,13 @@ public class BullyClient {
             } catch(Exception e) { }
             while(!salir.get()) {
                 if(tsEleccion.get() != null) {
-                    long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
-                    if(diffInSeconds > 10) {
-                        try {
+                    try {
+                        long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
+                        if(diffInSeconds > 10) {
+                        
                             AscenderNodo();
-                        } catch (Exception e) { }
-                    } 
+                        } 
+                    } catch (Exception e) { }
                 }
                 synchronized(mutexOp) {
                     while(opPendientes.size() > 0) {
@@ -185,7 +186,9 @@ public class BullyClient {
             Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
             op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
             porComprobar.put(idOperacion, op);
-            bl.SendOp(op);
+            try {
+                bl.SendOp(op);
+            } catch(Exception e) { }
         }
     }
 }
