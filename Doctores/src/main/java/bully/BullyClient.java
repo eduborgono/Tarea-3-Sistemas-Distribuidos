@@ -32,7 +32,7 @@ public class BullyClient {
     private final Queue<Operacion> opPendientes; 
     private final Object mutexOp;
     private final Set<String> mayores;
-    private final Map<Integer, Operacion> porComprobar;
+    private final Map<Integer, Boolean> porComprobar;
     private AtomicReference<String> coordinadorDir;
     private AtomicReference<String> tsEleccion;
 
@@ -46,7 +46,7 @@ public class BullyClient {
         opPendientes = new LinkedList<>();
         mutexOp = new Object();
         mayores = new HashSet<String>();
-        porComprobar = new HashMap<Integer, Operacion>();
+        porComprobar = new HashMap<Integer, Boolean>();
         coordinadorDir = new AtomicReference<String>();
         tsEleccion = new AtomicReference<String>();
 
@@ -147,24 +147,46 @@ public class BullyClient {
                                 coordinadorDir.set(op.getOrigen());
                                 break;
                             
+                            case Operacion.DEFECTO:
+                                Operacion opAux = new Operacion(op.getId(), 0, "0");
+                                opAux.Empaquetar(op.getDest(), op.getOrigen());
+                                opAux.setEspecial(Operacion.ENTREGA_CORRECTA);
+                                break;
+
+                            case Operacion.ENTREGA_CORRECTA:
+                                porComprobar.put(op.getId(), true);
+                                break;
+
                             case Operacion.POR_ENVIAR:
-                                if(coordinadorDir.get() == null) {
-                                    opPendientes.add(op);
-                                    try {
-                                        EmpezarEleccion();
-                                    } catch(Exception e) { }
-                                }
-                                else {
-                                    if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                if(!porComprobar.get(op.getId())) {
+                                    if(coordinadorDir.get() == null) {
                                         try {
-                                            op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
-                                            op.setEspecial("DEFECTO");
-                                            bl.SendOp(op);
+                                            EmpezarEleccion();
                                         } catch(Exception e) { }
                                     }
                                     else {
-                                        opPendientes.add(op);
+                                        if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                            if(op.getTimestamp() == null) {
+                                                try {
+                                                    op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
+                                                    op.setEspecial(Operacion.DEFECTO);
+                                                    op.setTimestamp(Instant.now().toString());
+                                                    bl.SendOp(op);
+                                                } catch(Exception e) { }
+                                            }
+                                            else {
+                                                long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
+                                                if(diffInSeconds > 15) {
+                                                    EmpezarEleccion();
+                                                } 
+                                            }
+                                        }
                                     }
+                                    op.setEspecial(Operacion.POR_ENVIAR);
+                                    opPendientes.add(op);
+                                }
+                                else {
+                                    porComprobar.remove(op.getId());
                                 }
                                 break;
                             
@@ -213,6 +235,8 @@ public class BullyClient {
                 idOperacion++;
                 Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
                 op.setEspecial(Operacion.POR_ENVIAR);
+                op.setTimestamp(null);
+                porComprobar.put(op.getId(), false);
                 opPendientes.add(op);
             }
         }
