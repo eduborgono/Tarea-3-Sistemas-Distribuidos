@@ -205,7 +205,10 @@ public class BullyClient {
 
     public void SendOp(int paciente, String procedimeinto) throws IOException {
         if(coordinadorDir.get() == null) {
-            EmpezarEleccion();
+            try {
+                Thread.sleep(1000);
+                EmpezarEleccion();
+            } catch(Exception e) { }
         }
         while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2));
         synchronized(idOperacionMutex) {
