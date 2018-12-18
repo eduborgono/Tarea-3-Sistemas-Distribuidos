@@ -55,6 +55,7 @@ public class BullyClient {
 
     public void EmpezarEleccion() {
         if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+            System.out.println("Empezar eleccion");
             tsEleccion.set(Instant.now().toString());
             coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_1);
             if(mayores.size() > 0) {
@@ -74,7 +75,7 @@ public class BullyClient {
     private void AscenderNodo() {
         if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
             try {
-                Operacion op = new Operacion(0, 0, "0");
+                Operacion op = new Operacion(1, 0, "0");
                 op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
                 op.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
                 bl.SendOp(op);
@@ -86,7 +87,7 @@ public class BullyClient {
     }
 
     public void Discovery() throws IOException  {
-        Operacion op = new Operacion(0, prioridad1+prioridad2, "0");
+        Operacion op = new Operacion(2, prioridad1+prioridad2, "0");
         op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
         op.setEspecial(Operacion.DISCOVERY_REQUEST);
         bl.SendOp(op);
@@ -136,7 +137,7 @@ public class BullyClient {
                                 if((prioridad1+prioridad2) > op.getIdPaciente())
                                 {
                                     try {
-                                        Operacion opResponse = new Operacion(0, 0, "0");
+                                        Operacion opResponse = new Operacion(3, 0, "0");
                                         opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
                                         opResponse.setEspecial(Operacion.DISCOVERY_RESPONSE);
                                         bl.SendOp(opResponse);
@@ -155,7 +156,7 @@ public class BullyClient {
                             
                             case Operacion.NUEVO_COORDINADOR_REQUEST:
                                 try {
-                                    Operacion opResponse = new Operacion(0, 0, "0");
+                                    Operacion opResponse = new Operacion(4, 0, "0");
                                     opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
                                     opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
                                     bl.SendOp(opResponse);
@@ -182,6 +183,7 @@ public class BullyClient {
                                     for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
                                         try {
                                             entry.getValue().setDest(coordinadorDir.get());
+                                            op.setEspecial("DEFECTO1");
                                             bl.SendOp(op);
                                         } catch (Exception e) { }
                                     } 
@@ -212,6 +214,7 @@ public class BullyClient {
             op.setTimestamp(Instant.now().toString());
             porComprobar.put(idOperacion, op);
             try {
+                op.setEspecial("DEFECTO2");
                 bl.SendOp(op);
             } catch(Exception e) { }
         }

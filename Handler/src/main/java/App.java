@@ -134,7 +134,7 @@ class App {
                                         try {
                                             machineMap.get(address[0]).SendOp(op);
                                         } catch(Exception e) {
-                                            System.out.println("MAQUINA: No se pudo enviar mensaje a " + address[0] );
+                                            System.out.println("MAQUINA: No se pudo enviar mensaje a " + op.toString());
                                         }
                                     }
                                 } catch(Exception e) {
