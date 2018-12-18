@@ -14,6 +14,13 @@ public class Operacion {
     public static final String BROADCAST_LOCAL = "BROADCAST_LOCAL";
     public static final String BROADCAST_GLOBAL = "BROADCAST_GLOBAL";
     public static final String CONFIGURACION = "CONFIGURACION";
+    public static final String ESPERANDO_COORDINADOR = "ESPERANDO_COORDINADOR";
+
+    public static final int DISCOVERY_REQUEST = 0;
+    public static final int DISCOVERY_RESPONSE = 2;
+    public static final int NUEVO_COORDINADOR_REQUEST = 3;
+    public static final int NUEVO_COORDINADOR_RESPONSE = 4;
+    public static final int NUEVO_COORDINADOR_ALL = 5;
 
     @Getter @Setter private String origen;
     @Getter @Setter private String dest;

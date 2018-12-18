@@ -141,7 +141,7 @@ class App {
                         synchronized(mutexMap) {
                             //Recepcion de mensajes, reenvío hacia la subred
                             for (Map.Entry<String, ClientHandler> entry : threadMap.entrySet()) {
-                                if(Objects.equals(op.getDest(), entry.getKey()) || Objects.equals(op.getDest(), Operacion.BROADCAST)) {
+                                if(!Objects.equals(op.getOrigen(), entry.getKey()) && (Objects.equals(op.getDest(), entry.getKey()) || Objects.equals(op.getDest(), Operacion.BROADCAST))) {
                                     try {
                                         synchronized(entry.getValue().mutexWriter) {
                                             entry.getValue().socketWriter.write(gson.toJson(op));

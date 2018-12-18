@@ -23,17 +23,18 @@ import lombok.Getter;
 
 class BullyListener extends Thread {
 
-    private final Object mutex;
     private Socket clientSocket;
     private BufferedWriter socketWriter;
     private BufferedReader socketReader;
-    private AtomicBoolean apagar;
     private Gson gson;
     @Getter private String direccionIp;
     @Getter private int puerto;
+    private final Queue<Operacion> opPendientes; 
+    private final Object mutexOp;
 
-    public BullyListener() throws IOException {
-        mutex = new Object();
+    public BullyListener(Queue<Operacion> opPendientes, Object mutexOp) throws IOException {
+        this.mutexOp = mutexOp;
+        this.opPendientes = opPendientes;
         clientSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 7777); 
         direccionIp = InetAddress.getLocalHost().getHostAddress();//InetAddress.getLocalHost().getHostAddress();
         puerto = clientSocket.getLocalPort();
@@ -48,7 +49,10 @@ class BullyListener extends Thread {
         try {
             while((msj = socketReader.readLine()) != null) {
                 Operacion op = gson.fromJson(msj, Operacion.class);
-                System.out.println(op.toString());
+                System.out.println("\t" + op.toString());
+                synchronized(mutexOp) {
+                    opPendientes.add(op);
+                }
             }
         } catch (Exception e) {  }
         System.out.println("Adios");

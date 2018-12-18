@@ -35,10 +35,10 @@ public class AppTestComm {
             while((in = input.nextInt()) != 0) {
                 
                 if(in == 1) {
-                    bullyClient.SendOp(0, "bailar", Operacion.BROADCAST);
+                    bullyClient.SendOp(0, "bailar");
                 }
                 else if(in == 2) {
-                    bullyClient.SendOp(2, "cantar", "none");
+                    bullyClient.SendOp(2, "cantar");
                 }
             } 
             bullyClient.Dispose();
