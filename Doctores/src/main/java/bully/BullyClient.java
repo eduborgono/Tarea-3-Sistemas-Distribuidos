@@ -46,16 +46,14 @@ public class BullyClient {
 
     public void EmpezarEleccion() throws IOException {
         if(mayores.size() > 0) {
-            System.out.print("\t\t");
             for (String nodo : mayores) {
                 idOperacion++;
                 Operacion op = new Operacion(idOperacion, prioridad1+prioridad2, "0");
                 op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
                 op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
                 bl.SendOp(op);
-                System.out.print("enviando consulta a "+op.getDest());
+                System.out.println("\t\tEnviando consulta a " + op.getDest());
             }
-            System.out.print("\n");
             tsEleccion.set(Instant.now().toString());
         }
         else {
@@ -98,7 +96,7 @@ public class BullyClient {
             while(!salir.get()) {
                 if(tsEleccion.get() != null) {
                     long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
-                    if(diffInSeconds > 5) {
+                    if(diffInSeconds > 10) {
                         try {
                             AscenderNodo();
                         } catch (Exception e) { }
@@ -135,7 +133,7 @@ public class BullyClient {
                                     opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
                                     opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
                                     bl.SendOp(opResponse);
-                                    tsEleccion.set(Instant.now().toString());
+                                    EmpezarEleccion();
                                 } catch (Exception e) { }
                                 break;
                             
