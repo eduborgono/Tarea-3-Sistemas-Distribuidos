@@ -107,10 +107,6 @@ public class BullyClient {
             while(!salir.get()) {
                 synchronized(mutexOp) {
                     if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
-                        try {
-                            System.out.println(tsEleccion.get());
-                            Thread.sleep(1000);
-                        } catch(Exception e) { }
                         if(tsEleccion.get() != null) {
                             try {
                                 long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
