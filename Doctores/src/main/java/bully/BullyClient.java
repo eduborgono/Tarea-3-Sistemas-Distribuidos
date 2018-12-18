@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BullyClient {
 
-    public static final String ESPERANDO_COORDINADOR = "ESPERANDO_COORDINADOR";
+    public static final String ESPERANDO_COORDINADOR_FASE_1 = "ESPERANDO_COORDINADOR_FASE_1";
+    public static final String ESPERANDO_COORDINADOR_FASE_2 = "ESPERANDO_COORDINADOR_FASE_2";
 
     private int idOperacion;
     private final Object idOperacionMutex;
@@ -29,7 +30,6 @@ public class BullyClient {
     private final Object mutexOp;
     private final Set<String> mayores;
     private final Map<Integer, Operacion> porComprobar;
-    private AtomicBoolean coordinador;
     private AtomicReference<String> coordinadorDir;
     private AtomicReference<String> tsEleccion;
 
@@ -46,7 +46,6 @@ public class BullyClient {
         porComprobar = new HashMap<Integer, Operacion>();
         coordinadorDir = new AtomicReference<String>();
         tsEleccion = new AtomicReference<String>();
-        coordinador = new AtomicBoolean(false);
 
         bl = new BullyListener(opPendientes, mutexOp);
         bl.start();
@@ -55,9 +54,9 @@ public class BullyClient {
 
 
     public void EmpezarEleccion() {
-        if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR)) {
+        if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
             tsEleccion.set(Instant.now().toString());
-            coordinadorDir.set(null);
+            coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_1);
             if(mayores.size() > 0) {
                 for (String nodo : mayores) {
                     Operacion op = new Operacion(0, 0, "0");
@@ -73,16 +72,17 @@ public class BullyClient {
     }
 
     private void AscenderNodo() {
-        try {
-            Operacion op = new Operacion(0, 0, "0");
-            op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
-            op.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
-            bl.SendOp(op);
-            tsEleccion.set(null);
-            coordinador.set(true);
-            coordinadorDir.set(bl.getDireccionIp() + ":" + bl.getPuerto());
-            System.out.println("\t\tAhora yo soy el lider");
-        } catch (Exception e) { }
+        if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+            try {
+                Operacion op = new Operacion(0, 0, "0");
+                op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
+                op.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
+                bl.SendOp(op);
+                tsEleccion.set(null);
+                coordinadorDir.set(bl.getDireccionIp() + ":" + bl.getPuerto());
+                System.out.println("\t\tAhora yo soy el lider");
+            } catch (Exception e) { }
+        }
     }
 
     public void Discovery() throws IOException  {
@@ -104,52 +104,47 @@ public class BullyClient {
                 Discovery();
             } catch(Exception e) { }
             while(!salir.get()) {
-                if(coordinadorDir.get() != null) {
-                    if(!Objects.equals(ESPERANDO_COORDINADOR, coordinadorDir.get())) {
-                        synchronized(idOperacionMutex) {
-                            for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
-                                long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
-                                //Murio el coordinador
-                                if(diffInSeconds > 10) {
-                                    EmpezarEleccion();
-                                    break;
+                synchronized(mutexOp) {
+                    while(opPendientes.size() > 0) {
+                        if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                            if(tsEleccion.get() != null) {
+                                try {
+                                    long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
+                                    if(diffInSeconds > 10) {
+                                        AscenderNodo();
+                                    } 
+                                } catch (Exception e) { }
+                            }
+                        }
+                        else {
+                            if(coordinadorDir.get() != null && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                synchronized(idOperacionMutex) {
+                                    for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
+                                        long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
+                                        //Murio el coordinador
+                                        if(diffInSeconds > 10) {
+                                            EmpezarEleccion();
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-                else {
-                    if(tsEleccion.get() != null) {
-                        try {
-                            long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
-                            if(diffInSeconds > 10) {
-                                AscenderNodo();
-                            } 
-                        } catch (Exception e) { }
-                    }
-                }
-                synchronized(mutexOp) {
-                    while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
                         switch(op.getEspecial()) {
-                            case Operacion.DEFECTO:
-                                try {
-                                    Operacion opResponse = new Operacion(op.getId(), 0, "0");
-                                    opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
-                                    opResponse.setEspecial(Operacion.ENTREGA_CORRECTA);
-                                    bl.SendOp(opResponse);
-                                    //procesar cosas
-                                } catch (Exception e) { }
-                                break;
                             case Operacion.DISCOVERY_REQUEST:
-                                if(op.getIdPaciente() < (prioridad1+prioridad2))
+                                if((prioridad1+prioridad2) > op.getIdPaciente())
                                 {
                                     try {
-                                        Operacion opResponse = new Operacion(op.getId(), 0, "0");
+                                        Operacion opResponse = new Operacion(0, 0, "0");
                                         opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
                                         opResponse.setEspecial(Operacion.DISCOVERY_RESPONSE);
                                         bl.SendOp(opResponse);
                                     } catch (Exception e) { }
+                                }
+                                else {
+                                    mayores.add(op.getOrigen());
+                                    System.out.println("\t\tAgregado como mayor "+op.getOrigen());
                                 }
                                 break;
 
@@ -164,18 +159,25 @@ public class BullyClient {
                                     opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
                                     opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
                                     bl.SendOp(opResponse);
-                                    EmpezarEleccion();
+                                    if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                        EmpezarEleccion();
+                                    }
                                 } catch (Exception e) { }
                                 break;
-                            
+
                             case Operacion.NUEVO_COORDINADOR_RESPONSE:
-                                tsEleccion.set(null);
-                                coordinadorDir.set(ESPERANDO_COORDINADOR);
+                                if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                                    coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_2);
+                                    tsEleccion.set(null);
+                                }
                                 break;
-                            
+
                             case Operacion.NUEVO_COORDINADOR_ALL:
                                 tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
+                                try {
+                                    Thread.sleep(500);
+                                } catch (Exception e) { }
                                 synchronized(idOperacionMutex) {
                                     for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
                                         try {
@@ -193,7 +195,7 @@ public class BullyClient {
                                 break;
                         }
                     }
-                }        
+                }     
             }
         }
     }
