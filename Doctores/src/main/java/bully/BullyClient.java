@@ -34,8 +34,8 @@ public class BullyClient {
         mutexOp = new Object();
         mayores = new ArrayList<>();
 
-        coordinadorDir = new AtomicReference<>();
-        tsEleccion = new AtomicReference<>();
+        coordinadorDir = new AtomicReference<String>();
+        tsEleccion = new AtomicReference<String>();
         coordinador = new AtomicBoolean(false);
 
         bl = new BullyListener(opPendientes, mutexOp);
@@ -92,6 +92,7 @@ public class BullyClient {
             } catch(Exception e) { }
             while(!salir.get()) {
                 if(tsEleccion.get() != null) {
+                    System.out.println(tsEleccion.get());
                     long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
                     if(diffInSeconds > 10) {
                         try {
