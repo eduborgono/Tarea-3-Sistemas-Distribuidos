@@ -33,8 +33,8 @@ public class BullyClient {
     private final Queue<Operacion> opPendientes;
     private final Set<String> mayores;
     private final Map<Integer, Boolean> porComprobar;
-    private AtomicReference<String> coordinadorDir;
-    private AtomicReference<String> tsEleccion;
+    private String coordinadorDir;
+    private String tsEleccion;
 
     public BullyClient(int id, int experiencia, int estudios) throws IOException {
         identificador = id;
@@ -46,8 +46,8 @@ public class BullyClient {
         opPendientes = new ConcurrentLinkedQueue<>();
         mayores = new HashSet<String>();
         porComprobar = new HashMap<Integer, Boolean>();
-        coordinadorDir = new AtomicReference<String>();
-        tsEleccion = new AtomicReference<String>();
+        coordinadorDir = null;
+        tsEleccion = null;
 
         bl = new BullyListener(opPendientes);
         bl.start();
@@ -97,10 +97,10 @@ public class BullyClient {
                 Discovery();
             } catch(Exception e) { }
             while(!salir.get()) {
-                if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
-                    if(tsEleccion.get() != null) {
+                if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
+                    if(tsEleccion != null) {
                         try {
-                            long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
+                            long diffInSeconds = Duration.between(Instant.parse(tsEleccion), Instant.now()).getSeconds();
                             if(diffInSeconds > 15) {
                                 AscenderNodo();
                             } 
@@ -137,24 +137,24 @@ public class BullyClient {
                                 opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
                                 opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
                                 bl.SendOp(opResponse);
-                                if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                if(!Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_2)) {
                                     EmpezarEleccion();
                                 }
                             } catch (Exception e) { }
                             break;
 
                         case Operacion.NUEVO_COORDINADOR_RESPONSE:
-                            if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                            if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
                                 System.out.println("\tEsperando nuevo coordinador");
-                                coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_2);
-                                tsEleccion.set(null);
+                                coordinadorDir = ESPERANDO_COORDINADOR_FASE_2;
+                                tsEleccion = null;
                             }
                             break;
 
                         case Operacion.NUEVO_COORDINADOR_ALL:
-                            tsEleccion.set(null);
-                            coordinadorDir.set(op.getOrigen());
-                            System.out.println("\t\tEl nuevo coordinador es " + coordinadorDir.get());
+                            tsEleccion = null;
+                            coordinadorDir = op.getOrigen();
+                            System.out.println("\t\tEl nuevo coordinador es " + coordinadorDir);
                             break;
                         
                         case Operacion.DEFECTO:
@@ -169,16 +169,16 @@ public class BullyClient {
 
                         case Operacion.POR_ENVIAR:
                             if(!porComprobar.get(op.getId())) {
-                                if(coordinadorDir.get() == null) {
+                                if(coordinadorDir == null) {
                                     try {
                                         EmpezarEleccion();
                                     } catch(Exception e) { }
                                 }
                                 else {
-                                    if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                    if(!Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_2)) {
                                         if(op.getTimestamp() == null) {
                                             try {
-                                                op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
+                                                op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir);
                                                 op.setEspecial(Operacion.DEFECTO);
                                                 op.setTimestamp(Instant.now().toString());
                                                 bl.SendOp(op);
@@ -202,10 +202,10 @@ public class BullyClient {
                             break;
                         
                         case Operacion.NUEVO_COORDINADOR_INTENT:
-                            if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                            if(!Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_2)) {
                                 System.out.println("Empezar eleccion");
-                                tsEleccion.set(Instant.now().toString());
-                                coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_1);
+                                tsEleccion = Instant.now().toString();
+                                coordinadorDir = ESPERANDO_COORDINADOR_FASE_1;
                                 if(mayores.size() > 0) {
                                     for (String nodo : mayores) {
                                         Operacion auxOp = new Operacion(0, 0, "0");
@@ -221,14 +221,14 @@ public class BullyClient {
                             break;
 
                         case Operacion.ASCENDER_INTENT:
-                            if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                            if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
                                 try {
                                     Operacion auxOp = new Operacion(1, 0, "0");
                                     auxOp.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
                                     auxOp.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
                                     bl.SendOp(auxOp);
-                                    tsEleccion.set(null);
-                                    coordinadorDir.set(bl.getDireccionIp() + ":" + bl.getPuerto());
+                                    tsEleccion = null;
+                                    coordinadorDir = bl.getDireccionIp() + ":" + bl.getPuerto();
                                     System.out.println("\t\tAhora yo soy el lider");
                                 } catch (Exception e) { }
                             }
