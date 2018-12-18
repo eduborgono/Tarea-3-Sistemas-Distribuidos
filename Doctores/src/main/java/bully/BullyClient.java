@@ -55,6 +55,11 @@ public class BullyClient {
         new Trabajar().start();
     }
 
+    public void Dispose() {
+        bl.Dispose();
+        salir.set(true);
+    }
+
 
     private void EmpezarEleccion() {
         Operacion op = new Operacion(0, 0, "0");
@@ -75,9 +80,17 @@ public class BullyClient {
         bl.SendOp(op);
     }
 
-    public void Dispose() {
-        bl.Dispose();
-        salir.set(true);
+    public void SendOp(int paciente, String procedimeinto) throws IOException {
+        synchronized(idOperacionMutex) {
+            synchronized(mutexOp) {
+                idOperacion++;
+                Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
+                op.setEspecial(Operacion.POR_ENVIAR);
+                op.setTimestamp(null);
+                porComprobar.put(op.getId(), false);
+                opPendientes.add(op);
+            }
+        }
     }
 
     private class Trabajar extends Thread {
@@ -145,6 +158,7 @@ public class BullyClient {
                             case Operacion.NUEVO_COORDINADOR_ALL:
                                 tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
+                                System.out.println("\t\tEl nuevo coordinador es " + coordinadorDir.get())
                                 break;
                             
                             case Operacion.DEFECTO:
@@ -224,20 +238,10 @@ public class BullyClient {
                                 break;
                         }
                     }
-                }     
-            }
-        }
-    }
-
-    public void SendOp(int paciente, String procedimeinto) throws IOException {
-        synchronized(idOperacionMutex) {
-            synchronized(mutexOp) {
-                idOperacion++;
-                Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
-                op.setEspecial(Operacion.POR_ENVIAR);
-                op.setTimestamp(null);
-                porComprobar.put(op.getId(), false);
-                opPendientes.add(op);
+                }
+                try {
+                    Thread.sleep(100);
+                } catch(Exception e) { }
             }
         }
     }
