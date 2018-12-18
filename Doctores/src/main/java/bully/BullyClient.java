@@ -89,6 +89,9 @@ public class BullyClient {
     private class Trabajar extends Thread {
         @Override
         public void run() {
+            try {
+                Discovery();
+            } catch(Exception e) { }
             while(!salir.get()) {
                 if(tsEleccion.get() != null) {
                     long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
@@ -150,6 +153,9 @@ public class BullyClient {
     }
 
     public void SendOp(int paciente, String procedimeinto) throws IOException {
+        if(coordinadorDir.get() == null) {
+            EmpezarEleccion();
+        }
         while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), Operacion.ESPERANDO_COORDINADOR));
         Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
         op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
