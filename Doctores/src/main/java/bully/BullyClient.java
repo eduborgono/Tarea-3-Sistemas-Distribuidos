@@ -165,6 +165,7 @@ public class BullyClient {
 
                         case Operacion.ENTREGA_CORRECTA:
                             porComprobar.put(op.getId(), true);
+                            System.out.println("\t\t\tPck:"+op.getId()+"+");
                             break;
 
                         case Operacion.POR_ENVIAR:
@@ -172,6 +173,7 @@ public class BullyClient {
                                 if(coordinadorDir == null) {
                                     try {
                                         EmpezarEleccion();
+                                        opPendientes.add(op);
                                     } catch(Exception e) { }
                                 }
                                 else {
@@ -185,18 +187,19 @@ public class BullyClient {
                                             } catch(Exception e) { }
                                         }
                                         else {
-                                            /*long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
+                                            long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
                                             if(diffInSeconds > 15) {
                                                 EmpezarEleccion();
                                                 op.setTimestamp(null);
-                                            } */
+                                            }
                                         }
                                     }
+                                    op.setEspecial(Operacion.POR_ENVIAR);
+                                    opPendientes.add(op);
                                 }
-                                /*op.setEspecial(Operacion.POR_ENVIAR);
-                                opPendientes.add(op);*/
                             }
                             else {
+                                //deshechar
                                 porComprobar.remove(op.getId());
                             }
                             break;
