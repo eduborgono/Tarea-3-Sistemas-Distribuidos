@@ -206,7 +206,6 @@ public class BullyClient {
     public void SendOp(int paciente, String procedimeinto) throws IOException {
         if(coordinadorDir.get() == null) {
             try {
-                Thread.sleep(1000);
                 EmpezarEleccion();
             } catch(Exception e) { }
         }
