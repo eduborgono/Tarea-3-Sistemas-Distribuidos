@@ -99,24 +99,28 @@ public class BullyClient {
                 Discovery();
             } catch(Exception e) { }
             while(!salir.get()) {
-                if(tsEleccion.get() != null) {
-                    try {
-                        long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
-                        if(diffInSeconds > 10) {
-                            AscenderNodo();
-                        } 
-                    } catch (Exception e) { }
-                }
                 if(coordinadorDir.get() != null) {
-                    synchronized(idOperacionMutex) {
-                        for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
-                            long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
-                            //Murio el coordinador
-                            if(diffInSeconds > 10) {
-                                EmpezarEleccion();
-                                break;
+                    if(!Objects.equals(Operacion.ESPERANDO_COORDINADOR, coordinadorDir.get())) {
+                        synchronized(idOperacionMutex) {
+                            for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
+                                long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
+                                //Murio el coordinador
+                                if(diffInSeconds > 10) {
+                                    EmpezarEleccion();
+                                    break;
+                                }
                             }
                         }
+                    }
+                }
+                else {
+                    if(tsEleccion.get() != null) {
+                        try {
+                            long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
+                            if(diffInSeconds > 10) {
+                                AscenderNodo();
+                            } 
+                        } catch (Exception e) { }
                     }
                 }
                 synchronized(mutexOp) {
