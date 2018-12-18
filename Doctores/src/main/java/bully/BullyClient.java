@@ -1,6 +1,9 @@
 package bully;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -116,20 +119,6 @@ public class BullyClient {
                             } catch (Exception e) { }
                         }
                     }
-                    else {
-                        if(coordinadorDir.get() != null && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
-                            synchronized(idOperacionMutex) {
-                                for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
-                                    long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
-                                    //Murio el coordinador
-                                    if(diffInSeconds > 10) {
-                                        EmpezarEleccion();
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
                     while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
                         switch(op.getEspecial()) {
@@ -190,17 +179,27 @@ public class BullyClient {
                                     } 
                                 }
                                 break;
-
-                            case Operacion.ENTREGA_CORRECTA:
-                                synchronized(idOperacionMutex) {
-                                    porComprobar.remove(op.getId());
-                                }
-                                break;
                         }
                     }
                 }     
             }
         }
+    }
+
+    private static boolean isSocketAliveUitlity(String hostName, int port) {
+		boolean isAlive = false;
+		SocketAddress socketAddress = new InetSocketAddress(hostName, port);
+		Socket socket = new Socket();
+		int timeout = 2000;
+		try {
+			socket.connect(socketAddress, timeout);
+			socket.close();
+			isAlive = true;
+ 
+        } catch(Exception e) {
+            //System.out.println("No se pudo establecer conexion con la maquina " + hostName);
+        }
+		return isAlive;
     }
 
     public void SendOp(int paciente, String procedimeinto) throws IOException {
@@ -209,13 +208,21 @@ public class BullyClient {
                 EmpezarEleccion();
             } catch(Exception e) { }
         }
+        else if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+            String[] dest = coordinadorDir.get().split(":");
+            if(isSocketAliveUitlity(dest[0], Integer.valueOf(dest[1]))) {
+                try {
+                    EmpezarEleccion();
+                } catch(Exception e) { }
+            }
+        }
         while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2));
         synchronized(idOperacionMutex) {
             idOperacion++;
             Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
             op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
             op.setTimestamp(Instant.now().toString());
-            porComprobar.put(idOperacion, op);
+            //porComprobar.put(idOperacion, op);
             try {
                 op.setEspecial("DEFECTO2");
                 bl.SendOp(op);
