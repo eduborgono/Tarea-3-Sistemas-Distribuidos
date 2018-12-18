@@ -141,9 +141,6 @@ class App {
                             }
                         }
                     }
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) { }
                     while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
                         synchronized(mutexMachineMap) {

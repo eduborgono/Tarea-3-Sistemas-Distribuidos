@@ -113,7 +113,7 @@ public class BullyClient {
                         if(tsEleccion.get() != null) {
                             try {
                                 long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
-                                if(diffInSeconds > 10) {
+                                if(diffInSeconds > 15) {
                                     AscenderNodo();
                                 } 
                             } catch (Exception e) { }
