@@ -55,17 +55,19 @@ public class BullyClient {
 
 
     public void EmpezarEleccion() {
-        tsEleccion.set(Instant.now().toString());
-        coordinadorDir.set(null);
-        if(mayores.size() > 0) {
-            for (String nodo : mayores) {
-                Operacion op = new Operacion(0, prioridad1+prioridad2, "0");
-                op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
-                op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
-                try {
-                    bl.SendOp(op);
-                    System.out.println("\t\tEnviando consulta a " + op.getDest());
-                } catch(Exception e) {}
+        if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR)) {
+            tsEleccion.set(Instant.now().toString());
+            coordinadorDir.set(null);
+            if(mayores.size() > 0) {
+                for (String nodo : mayores) {
+                    Operacion op = new Operacion(0, 0, "0");
+                    op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
+                    op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
+                    try {
+                        bl.SendOp(op);
+                        System.out.println("\t\tEnviando consulta a " + op.getDest());
+                    } catch(Exception e) {}
+                }
             }
         }
     }
@@ -149,10 +151,6 @@ public class BullyClient {
                                         bl.SendOp(opResponse);
                                     } catch (Exception e) { }
                                 }
-                                else {
-                                    mayores.add(op.getOrigen());
-                                    System.out.println("\t\tAgregado como mayor "+op.getOrigen());
-                                }
                                 break;
 
                             case Operacion.DISCOVERY_RESPONSE:
@@ -162,13 +160,11 @@ public class BullyClient {
                             
                             case Operacion.NUEVO_COORDINADOR_REQUEST:
                                 try {
-                                    if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR)) {
-                                        Operacion opResponse = new Operacion(op.getId(), 0, "0");
-                                        opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
-                                        opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
-                                        bl.SendOp(opResponse);
-                                        EmpezarEleccion();
-                                    }
+                                    Operacion opResponse = new Operacion(0, 0, "0");
+                                    opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
+                                    opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
+                                    bl.SendOp(opResponse);
+                                    EmpezarEleccion();
                                 } catch (Exception e) { }
                                 break;
                             
@@ -206,7 +202,7 @@ public class BullyClient {
         if(coordinadorDir.get() == null) {
             EmpezarEleccion();
         }
-        while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR));
+        while((coordinadorDir.get() == null));
         synchronized(idOperacionMutex) {
             idOperacion++;
             Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
