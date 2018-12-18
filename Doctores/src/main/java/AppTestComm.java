@@ -18,7 +18,7 @@ public class AppTestComm {
             int id = ThreadLocalRandom.current().nextInt(0, 20 + 1);
             int experiencia = ThreadLocalRandom.current().nextInt(0, 20 + 1);
             int estudios = ThreadLocalRandom.current().nextInt(5, 20 + 1);
-            System.out.println(id + " " + experiencia + " " + estudios);
+            System.out.println(id + ": prioridad" + experiencia + estudios);
             BullyClient bullyClient = new BullyClient(id, experiencia, estudios);
             Scanner input = new Scanner(System.in);
             int in;
