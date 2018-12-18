@@ -30,11 +30,9 @@ class BullyListener extends Thread {
     private Gson gson;
     @Getter private String direccionIp;
     @Getter private int puerto;
-    private final Queue<Operacion> opPendientes; 
-    private final Object mutexOp;
+    private final Queue<Operacion> opPendientes;
 
-    public BullyListener(Queue<Operacion> opPendientes, Object mutexOp) throws IOException {
-        this.mutexOp = mutexOp;
+    public BullyListener(Queue<Operacion> opPendientes) throws IOException {
         this.opPendientes = opPendientes;
         clientSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 7777); 
         direccionIp = InetAddress.getLocalHost().getHostAddress();//InetAddress.getLocalHost().getHostAddress();
@@ -53,9 +51,7 @@ class BullyListener extends Thread {
                 if(!Objects.equals(op.getEspecial(), Operacion.ERROR_ENTREGA) && !Objects.equals(op.getEspecial(), Operacion.ENTREGA_CORRECTA)) {
                     System.out.println("\t" + op.toString());
                 }
-                synchronized(mutexOp) {
-                    opPendientes.add(op);
-                }
+                opPendientes.add(op);
             }
         } catch (Exception e) {  }
         System.out.println("Adios");
