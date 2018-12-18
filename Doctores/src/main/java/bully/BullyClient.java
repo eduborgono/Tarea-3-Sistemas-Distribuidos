@@ -46,13 +46,16 @@ public class BullyClient {
 
     public void EmpezarEleccion() throws IOException {
         if(mayores.size() > 0) {
+            System.out.print("\t\t");
             for (String nodo : mayores) {
                 idOperacion++;
                 Operacion op = new Operacion(idOperacion, prioridad1+prioridad2, "0");
                 op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
                 op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
                 bl.SendOp(op);
+                System.out.print("enviando consulta a "+op.getDest());
             }
+            System.out.print("\n");
             tsEleccion.set(Instant.now().toString());
         }
         else {
@@ -69,7 +72,7 @@ public class BullyClient {
             bl.SendOp(op);
             tsEleccion.set(null);
             coordinador.set(true);
-            System.out.println("Ahora yo soy el lider");
+            System.out.println("\t\tAhora yo soy el lider");
         } catch (Exception e) { }
     }
 
@@ -117,11 +120,13 @@ public class BullyClient {
                                 }
                                 else {
                                     mayores.add(op.getOrigen());
+                                    System.out.println("\t\tAgregado como mayor "+op.getOrigen());
                                 }
                                 break;
 
                             case Operacion.DISCOVERY_RESPONSE:
                                 mayores.add(op.getOrigen());
+                                System.out.println("\t\tAgregado como mayor "+op.getOrigen());
                                 break;
                             
                             case Operacion.NUEVO_COORDINADOR_REQUEST:
