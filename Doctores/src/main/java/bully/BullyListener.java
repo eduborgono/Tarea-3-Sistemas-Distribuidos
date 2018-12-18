@@ -49,7 +49,7 @@ class BullyListener extends Thread {
         try {
             while((msj = socketReader.readLine()) != null) {
                 Operacion op = gson.fromJson(msj, Operacion.class);
-                System.out.println("\t" + op.toString());
+                if(op.getEspecial() != Operacion.ERROR_ENTREGA && op.getEspecial() != Operacion.ENTREGA_CORRECTA) System.out.println("\t" + op.toString());
                 synchronized(mutexOp) {
                     opPendientes.add(op);
                 }

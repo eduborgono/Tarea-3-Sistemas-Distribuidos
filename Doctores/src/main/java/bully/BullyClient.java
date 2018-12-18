@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -14,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BullyClient {
     private int idOperacion;
+    private final Object idOperacionMutex;
     private int identificador;
     private int prioridad1;
     private int prioridad2;
@@ -22,6 +25,7 @@ public class BullyClient {
     private final Queue<Operacion> opPendientes; 
     private final Object mutexOp;
     private final Set<String> mayores;
+    private final Map<Integer, Operacion> porComprobar;
     private AtomicBoolean coordinador;
     private AtomicReference<String> coordinadorDir;
     private AtomicReference<String> tsEleccion;
@@ -29,13 +33,14 @@ public class BullyClient {
     public BullyClient(int id, int experiencia, int estudios) throws IOException {
         identificador = id;
         idOperacion = 0;
+        idOperacionMutex = new Object();
         prioridad1 = experiencia;
         prioridad2 = estudios;
         salir = new AtomicBoolean(false);
         opPendientes = new LinkedList<>();
         mutexOp = new Object();
         mayores = new HashSet<String>();
-
+        porComprobar = new HashMap<Integer, Operacion>();
         coordinadorDir = new AtomicReference<String>();
         tsEleccion = new AtomicReference<String>();
         coordinador = new AtomicBoolean(false);
@@ -48,10 +53,10 @@ public class BullyClient {
 
     public void EmpezarEleccion() {
         tsEleccion.set(Instant.now().toString());
+        coordinadorDir.set(null);
         if(mayores.size() > 0) {
             for (String nodo : mayores) {
-                idOperacion++;
-                Operacion op = new Operacion(idOperacion, prioridad1+prioridad2, "0");
+                Operacion op = new Operacion(0, prioridad1+prioridad2, "0");
                 op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
                 op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
                 try {
@@ -64,7 +69,6 @@ public class BullyClient {
 
     private void AscenderNodo() {
         try {
-            idOperacion++;
             Operacion op = new Operacion(0, 0, "0");
             op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
             op.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
@@ -76,8 +80,7 @@ public class BullyClient {
     }
 
     public void Discovery() throws IOException  {
-        idOperacion++;
-        Operacion op = new Operacion(idOperacion, prioridad1+prioridad2, "0");
+        Operacion op = new Operacion(0, prioridad1+prioridad2, "0");
         op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
         op.setEspecial(Operacion.DISCOVERY_REQUEST);
         bl.SendOp(op);
@@ -146,6 +149,24 @@ public class BullyClient {
                             case Operacion.NUEVO_COORDINADOR_ALL:
                                 tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
+                                synchronized(idOperacionMutex) {
+                                    for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
+                                        try {
+                                            entry.getValue().setDest(coordinadorDir.get());
+                                            bl.SendOp(op);
+                                        } catch (Exception e) { }
+                                    } 
+                                }
+                                break;
+                            
+                            case Operacion.ERROR_ENTREGA:
+                                EmpezarEleccion();
+                                break;
+
+                            case Operacion.ENTREGA_CORRECTA:
+                                synchronized(idOperacionMutex) {
+                                    porComprobar.remove(op.getId());
+                                }
                                 break;
                         }
                     }
@@ -154,22 +175,17 @@ public class BullyClient {
         }
     }
 
-    public void SendOp(int paciente, String procedimeinto) {
+    public void SendOp(int paciente, String procedimeinto) throws IOException {
         if(coordinadorDir.get() == null) {
             EmpezarEleccion();
         }
         while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), Operacion.ESPERANDO_COORDINADOR));
-        Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
-        op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
-        try {
+        synchronized(idOperacionMutex) {
+            idOperacion++;
+            Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
+            op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
+            porComprobar.put(idOperacion, op);
             bl.SendOp(op);
-        } catch(Exception e) {
-            coordinadorDir.set(null);
-            System.out.println("\t\tCoordinador desconectado");
-            SendOp(paciente, procedimeinto);
         }
     }
-
-
-
 }

@@ -5,7 +5,6 @@ import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 import bully.BullyClient;
-import bully.Operacion;
 
 public class AppTestComm {
     public String getGreeting() {
