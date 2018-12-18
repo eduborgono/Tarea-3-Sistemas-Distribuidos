@@ -1,0 +1,50 @@
+Integrantes
+
+Eduardo Borgoño
+201373525-8
+Francisca Ramírez
+201373607-6
+---------------------
+Tecnologías y versiones utilizadas
+
+Java: openjdk version "1.8.0_191"
+Gradle: gradle version 4.10.2
+
+---------------------
+Consideraciones
+
+El archivo JSON de pacientes tuvo una pequeña modificación para poder parsearlo
+de forma más sencilla. Los arreglos de "tratamientos/procedimientos", "examenes"
+y "medicamentos", el arreglo de cada uno contenpia dos objetos JSON el cual en legal
+versión modificada será solo un objeto JSON.
+Ejemplo
+- Versión anterior:
+  ..."tratamientos/procedimientos":
+    [{"asignados": ["quimioterapia"]}, {}"completados" :["cateter"]}],...
+- Versión nueva:
+
+  ..."tratamientos/procedimientos":
+      [{"asignados": ["quimioterapia"], "completados" :["cateter"]}],...
+
+---------------------
+Intrucciones para ejecutar archivos
+
+OJO AQUI !
+agregar instrucciones para ejecutar
+
+
+
+---------------------
+Comparación de métodos
+
+Se escogió el primer procedimiento:
+  Se envıan los cambios al coordinador actual y este propaga a las replicas
+  para mantener consistencia completa (consistencia secuencial).
+En este procedimiento ocurre lo siguiente:
+  - Número de mensajes: aumenta.
+  - Latencia: aumenta
+  - Mantención de la consistencia: disminuye
+Se priorizó mantener la consistencia, en consecuencia de aumentar el número de
+mensajes y la latencia, esto debido al dominio de la tarea, en un hospital es de
+suma importancia que todos los elementos del sistema mantengan información actualizada
+de sus pacientes o podrían ocurrir graves errores.
