@@ -103,17 +103,19 @@ public class BullyClient {
                     try {
                         long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
                         if(diffInSeconds > 10) {
-                        
                             AscenderNodo();
                         } 
                     } catch (Exception e) { }
                 }
-                synchronized(idOperacionMutex) {
-                    for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
-                        long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
-                        //Murio el coordinador
-                        if(diffInSeconds > 10) {
-                            EmpezarEleccion();
+                if(coordinadorDir.get() != null) {
+                    synchronized(idOperacionMutex) {
+                        for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
+                            long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
+                            //Murio el coordinador
+                            if(diffInSeconds > 10) {
+                                EmpezarEleccion();
+                                break;
+                            }
                         }
                     }
                 }
