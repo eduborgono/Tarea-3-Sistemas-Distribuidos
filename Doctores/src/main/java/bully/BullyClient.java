@@ -206,7 +206,7 @@ public class BullyClient {
         if(coordinadorDir.get() == null) {
             EmpezarEleccion();
         }
-        while((coordinadorDir.get() == null));
+        while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2));
         synchronized(idOperacionMutex) {
             idOperacion++;
             Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
