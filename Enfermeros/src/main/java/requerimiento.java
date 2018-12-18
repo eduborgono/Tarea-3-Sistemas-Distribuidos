@@ -5,9 +5,9 @@ public class requerimiento{
   public String  cargo;
   public HashMap<String, String> procedimientos;
   //Constructor
-  public requerimiento(int id, String cargo, HashMap<String, String> proc) {
-    id = id;
-    cargo = cargo;
+  public requerimiento(int ide, String Cargo, HashMap<String, String> proc) {
+    id = ide;
+    cargo = Cargo;
     procedimientos = proc;
     }
 }

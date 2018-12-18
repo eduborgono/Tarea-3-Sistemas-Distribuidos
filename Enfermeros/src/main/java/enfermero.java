@@ -10,11 +10,11 @@ public class enfermero{
   public int experiencia;
 
   //Constructor
-  public enfermero(int id, String nombre, String apellido, int estudios, int experiencia){
-    id = id;
-    nombre = nombre;
-    apellido = apellido;
-    estudios = estudios;
-    experiencia = experiencia;
+  public enfermero(int ide, String Nombre, String Apellido, int Estudios, int Experiencia){
+    id = ide;
+    nombre = Nombre;
+    apellido = Apellido;
+    estudios = Estudios;
+    experiencia = Experiencia;
   }
 }

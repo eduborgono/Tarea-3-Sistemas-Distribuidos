@@ -19,12 +19,10 @@ public class App {
     JSONObject funcionariosJsonObject = new JSONObject(content);
     //Json array: obtener doctores, enfermeros y paramedicos desde el JSON
     JSONArray doc = funcionariosJsonObject.getJSONArray("Doctor");
-
     //Instancia de cada tipo de funcionario
     Doctor dr;
     //Listas para cada tipo de funcionarios
     List<Doctor> doctores = new ArrayList<Doctor>();
-
     //JSONObject obtener datos de cada doctor
     for (int i = 0; i < doc.length(); i++) {
       JSONObject nDoctor = doc.getJSONObject(i);
@@ -35,7 +33,7 @@ public class App {
                      nDoctor.getInt("experiencia"));
       doctores.add(dr);
     }
-    
+
     /**** LECTURA DE PACIENTES ****/
     /*El mismo procedimiento explicado anteriormente*/
     paciente pac;
@@ -155,5 +153,17 @@ public class App {
                      procedimientos);
       requerimientos.add(request);
     }
+
+    Scanner sc = new Scanner(System.in);
+    System.out.println("Ingrese id Doctor: ");
+    int id = sc.nextInt();
+
+    for(int indice = 0;indice<requerimientos.size();indice++){
+        requerimiento reqI = requerimientos.get(indice);
+        if(reqI.id == id){
+            System.out.println("Tiene trabajo");
+        }
+    }
+
   }
 }

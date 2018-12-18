@@ -3,28 +3,30 @@ import java.util.*;
 //Clase paciente
 public class paciente{
   //Atributos
-  private String nombre;
-  private String rut;
-  private String edad;
-  private List<String> enfermedades;
-  private List<String> procedimientoAsig;
-  private List<String> procedimientoComp;
-  private List<String> examenRealizado;
-  private List<String> examenNoRealizado;
-  private List<String> medicamentosRec;
-  private List<String> medicamentosSum;
+  public int id;
+  public String nombre;
+  public String rut;
+  public String edad;
+  public List<String> enfermedades;
+  public List<String> procedimientoAsig;
+  public List<String> procedimientoComp;
+  public List<String> examenRealizado;
+  public List<String> examenNoRealizado;
+  public List<String> medicamentosRec;
+  public List<String> medicamentosSum;
 
   //Constructor
-  public paciente(int id, String nombre, String rut, String edad, List<String> enf, List<String> procAsig, List<String> procComp, List<String> examR, List<String> examNR, List<String> medRec, List<String> medSum){
-  nombre = nombre;
-  rut = rut;
-  edad = edad;
-  enfermedades = enf;
-  procedimientoAsig = procAsig;
-  procedimientoComp = procComp;
-  examenRealizado = examR;
-  examenNoRealizado = examNR;
-  medicamentosRec = medRec;
-  medicamentosSum = medSum;
+  public paciente(int ide, String Nombre, String Rut, String Edad, List<String> enf, List<String> procAsig, List<String> procComp, List<String> examR, List<String> examNR, List<String> medRec, List<String> medSum){
+    id = ide;
+    nombre = Nombre;
+    rut = Rut;
+    edad = Edad;
+    enfermedades = enf;
+    procedimientoAsig = procAsig;
+    procedimientoComp = procComp;
+    examenRealizado = examR;
+    examenNoRealizado = examNR;
+    medicamentosRec = medRec;
+    medicamentosSum = medSum;
   }
 }
