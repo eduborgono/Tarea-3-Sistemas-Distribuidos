@@ -162,7 +162,7 @@ public class BullyClient {
                             opAux.Empaquetar(op.getDest(), op.getOrigen());
                             opAux.setEspecial(Operacion.ENTREGA_CORRECTA);
                             try {
-                                bl.SendOp(op);
+                                bl.SendOp(opAux);
                             } catch(Exception e) { }
                             break;
 
