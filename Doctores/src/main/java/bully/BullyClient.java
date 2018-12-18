@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,7 +21,7 @@ public class BullyClient {
     private AtomicBoolean salir;
     private final Queue<Operacion> opPendientes; 
     private final Object mutexOp;
-    private final ArrayList<String> mayores;
+    private final Set<String> mayores;
     private AtomicBoolean coordinador;
     private AtomicReference<String> coordinadorDir;
     private AtomicReference<String> tsEleccion;
@@ -32,7 +34,7 @@ public class BullyClient {
         salir = new AtomicBoolean(false);
         opPendientes = new LinkedList<>();
         mutexOp = new Object();
-        mayores = new ArrayList<>();
+        mayores = new HashSet<String>();
 
         coordinadorDir = new AtomicReference<String>();
         tsEleccion = new AtomicReference<String>();
@@ -45,6 +47,7 @@ public class BullyClient {
 
 
     public void EmpezarEleccion() throws IOException {
+        tsEleccion.set(Instant.now().toString());
         if(mayores.size() > 0) {
             for (String nodo : mayores) {
                 idOperacion++;
@@ -54,7 +57,6 @@ public class BullyClient {
                 bl.SendOp(op);
                 System.out.println("\t\tEnviando consulta a " + op.getDest());
             }
-            tsEleccion.set(Instant.now().toString());
         }
     }
 
@@ -92,7 +94,6 @@ public class BullyClient {
             } catch(Exception e) { }
             while(!salir.get()) {
                 if(tsEleccion.get() != null) {
-                    System.out.println(tsEleccion.get());
                     long diffInSeconds = Duration.between(Instant.parse(tsEleccion.get()), Instant.now()).getSeconds();
                     if(diffInSeconds > 10) {
                         try {
