@@ -155,5 +155,23 @@ public class App {
                      procedimientos);
       requerimientos.add(request);
     }
+    Scanner sc = new Scanner(System.in);
+    System.out.println("Ingrese id enfermero: ");
+    int id = sc.nextInt();
+
+    for(int indice = 0;indice<requerimientos.size();indice++){
+        requerimiento reqI = requerimientos.get(indice);
+        String enfermero = new String("enfermero");
+        if(reqI.id == id && enfermero.equals(reqI.cargo)){
+          for (HashMap.Entry<String, String> entry : reqI.procedimientos.entrySet()) {
+            System.out.println("Enter");
+            String cadena = sc.nextLine();
+            /***AQUI LA FUNCION***/
+            //trabajo(entry.getKey,entry.getValue);
+            //comentar linea de abajo
+            System.out.println("clave=" + entry.getKey() + ", valor=" + entry.getValue());
+          }
+        }
+    }
   }
 }
