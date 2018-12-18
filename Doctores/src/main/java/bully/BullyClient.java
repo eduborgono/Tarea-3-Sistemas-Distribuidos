@@ -100,6 +100,7 @@ public class BullyClient {
                 if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
                     if(tsEleccion != null) {
                         try {
+                            System.out.println("timeout win");
                             long diffInSeconds = Duration.between(Instant.parse(tsEleccion), Instant.now()).getSeconds();
                             if(diffInSeconds > 15) {
                                 AscenderNodo();
