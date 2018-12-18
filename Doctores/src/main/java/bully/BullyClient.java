@@ -46,7 +46,7 @@ public class BullyClient {
     }
 
 
-    public void EmpezarEleccion() throws IOException {
+    public void EmpezarEleccion() {
         tsEleccion.set(Instant.now().toString());
         if(mayores.size() > 0) {
             for (String nodo : mayores) {
@@ -54,8 +54,10 @@ public class BullyClient {
                 Operacion op = new Operacion(idOperacion, prioridad1+prioridad2, "0");
                 op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
                 op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
-                bl.SendOp(op);
-                System.out.println("\t\tEnviando consulta a " + op.getDest());
+                try {
+                    bl.SendOp(op);
+                    System.out.println("\t\tEnviando consulta a " + op.getDest());
+                } catch(Exception e) {}
             }
         }
     }
@@ -142,6 +144,7 @@ public class BullyClient {
                                 break;
                             
                             case Operacion.NUEVO_COORDINADOR_ALL:
+                                tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
                                 break;
                         }
@@ -151,14 +154,20 @@ public class BullyClient {
         }
     }
 
-    public void SendOp(int paciente, String procedimeinto) throws IOException {
+    public void SendOp(int paciente, String procedimeinto) {
         if(coordinadorDir.get() == null) {
             EmpezarEleccion();
         }
         while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), Operacion.ESPERANDO_COORDINADOR));
         Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
         op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
-        bl.SendOp(op);
+        try {
+            bl.SendOp(op);
+        } catch(Exception e) {
+            coordinadorDir.set(null);
+            System.out.println("\t\tCoordinador desconectado");
+            SendOp(paciente, procedimeinto);
+        }
     }
 
 
