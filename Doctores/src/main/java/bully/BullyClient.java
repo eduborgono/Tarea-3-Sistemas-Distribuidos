@@ -56,9 +56,6 @@ public class BullyClient {
             }
             tsEleccion.set(Instant.now().toString());
         }
-        else {
-            AscenderNodo();
-        }
     }
 
     private void AscenderNodo() {
@@ -147,10 +144,7 @@ public class BullyClient {
                                 break;
                         }
                     }
-                }
-                try{
-                    Thread.sleep(150);
-                } catch(Exception e) {}           
+                }        
             }
         }
     }
