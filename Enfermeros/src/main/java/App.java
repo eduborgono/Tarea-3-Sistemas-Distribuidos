@@ -18,24 +18,24 @@ public class App {
     // Convert JSON string to JSONObject
     JSONObject funcionariosJsonObject = new JSONObject(content);
     //Json array: obtener doctores, enfermeros y paramedicos desde el JSON
-    JSONArray doc = funcionariosJsonObject.getJSONArray("Doctor");
+    JSONArray enf = funcionariosJsonObject.getJSONArray("enfermero");
 
     //Instancia de cada tipo de funcionario
-    Doctor dr;
+    enfermero enfermero;
     //Listas para cada tipo de funcionarios
-    List<Doctor> doctores = new ArrayList<Doctor>();
+    List<enfermero> enfermeros = new ArrayList<enfermero>();
 
-    //JSONObject obtener datos de cada doctor
-    for (int i = 0; i < doc.length(); i++) {
-      JSONObject nDoctor = doc.getJSONObject(i);
-      dr = new Doctor(nDoctor.getInt("id"),
-                     nDoctor.getString("nombre"),
-                     nDoctor.getString("apellido"),
-                     nDoctor.getInt("estudios"),
-                     nDoctor.getInt("experiencia"));
-      doctores.add(dr);
+    //JSONObject obtener datos de cada enfermeros
+    for (int i = 0; i < enf.length(); i++) {
+      JSONObject nEnfermero = enf.getJSONObject(i);
+      enfermero = new enfermero(nEnfermero.getInt("id"),
+                     nEnfermero.getString("nombre"),
+                     nEnfermero.getString("apellido"),
+                     nEnfermero.getInt("estudios"),
+                     nEnfermero.getInt("experiencia"));
+      enfermeros.add(enfermero);
     }
-    
+
     /**** LECTURA DE PACIENTES ****/
     /*El mismo procedimiento explicado anteriormente*/
     paciente pac;
