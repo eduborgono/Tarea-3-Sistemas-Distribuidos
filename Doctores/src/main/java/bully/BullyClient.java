@@ -56,37 +56,16 @@ public class BullyClient {
     }
 
 
-    public void EmpezarEleccion() {
-        if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
-            System.out.println("Empezar eleccion");
-            tsEleccion.set(Instant.now().toString());
-            coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_1);
-            if(mayores.size() > 0) {
-                for (String nodo : mayores) {
-                    Operacion op = new Operacion(0, 0, "0");
-                    op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
-                    op.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
-                    try {
-                        bl.SendOp(op);
-                        System.out.println("\t\tEnviando consulta a " + op.getDest());
-                    } catch(Exception e) {}
-                }
-            }
-        }
+    private void EmpezarEleccion() {
+        Operacion op = new Operacion(0, 0, "0");
+        op.setEspecial(Operacion.NUEVO_COORDINADOR_INTENT);
+        opPendientes.add(op);
     }
 
     private void AscenderNodo() {
-        if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
-            try {
-                Operacion op = new Operacion(1, 0, "0");
-                op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
-                op.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
-                bl.SendOp(op);
-                tsEleccion.set(null);
-                coordinadorDir.set(bl.getDireccionIp() + ":" + bl.getPuerto());
-                System.out.println("\t\tAhora yo soy el lider");
-            } catch (Exception e) { }
-        }
+        Operacion op = new Operacion(0, 0, "0");
+        op.setEspecial(Operacion.ASCENDER_INTENT);
+        opPendientes.add(op);
     }
 
     public void Discovery() throws IOException  {
@@ -167,6 +146,60 @@ public class BullyClient {
                                 tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
                                 break;
+                            
+                            case Operacion.POR_ENVIAR:
+                                if(coordinadorDir.get() == null) {
+                                    opPendientes.add(op);
+                                    try {
+                                        EmpezarEleccion();
+                                    } catch(Exception e) { }
+                                }
+                                else {
+                                    if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                        try {
+                                            op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
+                                            op.setEspecial("DEFECTO");
+                                            bl.SendOp(op);
+                                        } catch(Exception e) { }
+                                    }
+                                    else {
+                                        opPendientes.add(op);
+                                    }
+                                }
+                                break;
+                            
+                            case Operacion.NUEVO_COORDINADOR_INTENT:
+                                if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
+                                    System.out.println("Empezar eleccion");
+                                    tsEleccion.set(Instant.now().toString());
+                                    coordinadorDir.set(ESPERANDO_COORDINADOR_FASE_1);
+                                    if(mayores.size() > 0) {
+                                        for (String nodo : mayores) {
+                                            Operacion auxOp = new Operacion(0, 0, "0");
+                                            auxOp.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), nodo);
+                                            auxOp.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
+                                            try {
+                                                bl.SendOp(auxOp);
+                                                System.out.println("\t\tEnviando consulta a " + auxOp.getDest());
+                                            } catch(Exception e) {}
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case Operacion.ASCENDER_INTENT:
+                                if(Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1)) {
+                                    try {
+                                        Operacion auxOp = new Operacion(1, 0, "0");
+                                        auxOp.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
+                                        auxOp.setEspecial(Operacion.NUEVO_COORDINADOR_ALL);
+                                        bl.SendOp(auxOp);
+                                        tsEleccion.set(null);
+                                        coordinadorDir.set(bl.getDireccionIp() + ":" + bl.getPuerto());
+                                        System.out.println("\t\tAhora yo soy el lider");
+                                    } catch (Exception e) { }
+                                }
+                                break;
                         }
                     }
                 }     
@@ -174,47 +207,14 @@ public class BullyClient {
         }
     }
 
-    private static boolean isSocketAliveUitlity(String hostName, int port) {
-		boolean isAlive = false;
-		SocketAddress socketAddress = new InetSocketAddress(hostName, port);
-		Socket socket = new Socket();
-		int timeout = 2000;
-		try {
-			socket.connect(socketAddress, timeout);
-			socket.close();
-			isAlive = true;
- 
-        } catch(Exception e) {
-            //System.out.println("No se pudo establecer conexion con la maquina " + hostName);
-        }
-		return isAlive;
-    }
-
     public void SendOp(int paciente, String procedimeinto) throws IOException {
-        if(coordinadorDir.get() == null) {
-            try {
-                EmpezarEleccion();
-            } catch(Exception e) { }
-        }
-        else if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
-            String[] dest = coordinadorDir.get().split(":");
-            if(!isSocketAliveUitlity(dest[0], Integer.valueOf(dest[1]))) {
-                try {
-                    EmpezarEleccion();
-                } catch(Exception e) { }
-            }
-        }
-        while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2));
         synchronized(idOperacionMutex) {
-            idOperacion++;
-            Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
-            op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
-            op.setTimestamp(Instant.now().toString());
-            //porComprobar.put(idOperacion, op);
-            try {
-                op.setEspecial("DEFECTO2");
-                bl.SendOp(op);
-            } catch(Exception e) { }
+            synchronized(mutexOp) {
+                idOperacion++;
+                Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
+                op.setEspecial(Operacion.POR_ENVIAR);
+                opPendientes.add(op);
+            }
         }
     }
 }

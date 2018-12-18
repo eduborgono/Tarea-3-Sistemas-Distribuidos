@@ -17,6 +17,9 @@ public class Operacion {
     public static final String NUEVO_COORDINADOR_ALL = "NUEVO_COORDINADOR_ALL";
     public static final String ERROR_ENTREGA = "ERROR_ENTREGA";
     public static final String ENTREGA_CORRECTA = "ENTREGA_CORRECTA";
+    public static final String POR_ENVIAR = "POR_ENVIAR";
+    public static final String NUEVO_COORDINADOR_INTENT = "NUEVO_COORDINADOR_INTENT";
+    public static final String ASCENDER_INTENT = "ASCENDER_INTENT";
 
     @Getter @Setter private String origen;
     @Getter @Setter private String dest;
