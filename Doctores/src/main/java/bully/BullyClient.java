@@ -166,18 +166,6 @@ public class BullyClient {
                             case Operacion.NUEVO_COORDINADOR_ALL:
                                 tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
-                                try {
-                                    Thread.sleep(500);
-                                } catch (Exception e) { }
-                                synchronized(idOperacionMutex) {
-                                    for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
-                                        try {
-                                            entry.getValue().setDest(coordinadorDir.get());
-                                            op.setEspecial("DEFECTO1");
-                                            bl.SendOp(op);
-                                        } catch (Exception e) { }
-                                    } 
-                                }
                                 break;
                         }
                     }
