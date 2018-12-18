@@ -162,11 +162,13 @@ public class BullyClient {
                             
                             case Operacion.NUEVO_COORDINADOR_REQUEST:
                                 try {
-                                    Operacion opResponse = new Operacion(op.getId(), 0, "0");
-                                    opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
-                                    opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
-                                    bl.SendOp(opResponse);
-                                    EmpezarEleccion();
+                                    if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR)) {
+                                        Operacion opResponse = new Operacion(op.getId(), 0, "0");
+                                        opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
+                                        opResponse.setEspecial(Operacion.NUEVO_COORDINADOR_RESPONSE);
+                                        bl.SendOp(opResponse);
+                                        EmpezarEleccion();
+                                    }
                                 } catch (Exception e) { }
                                 break;
                             
