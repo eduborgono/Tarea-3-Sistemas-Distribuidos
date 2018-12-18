@@ -25,6 +25,7 @@ public class Operacion {
     @Getter @Setter private int idPaciente;
     @Getter @Setter private String procedimeinto;
     @Getter @Setter private String especial;
+    @Getter @Setter private String timestamp;
 
     public Operacion() {}
 

@@ -107,10 +107,28 @@ public class BullyClient {
                         } 
                     } catch (Exception e) { }
                 }
+                synchronized(idOperacionMutex) {
+                    for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
+                        long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
+                        //Murio el coordinador
+                        if(diffInSeconds > 10) {
+                            EmpezarEleccion();
+                        }
+                    }
+                }
                 synchronized(mutexOp) {
                     while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
                         switch(op.getEspecial()) {
+                            case Operacion.DEFECTO:
+                                try {
+                                    Operacion opResponse = new Operacion(op.getId(), 0, "0");
+                                    opResponse.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), op.getOrigen());
+                                    opResponse.setEspecial(Operacion.ENTREGA_CORRECTA);
+                                    bl.SendOp(opResponse);
+                                    //procesar cosas
+                                } catch (Exception e) { }
+                                break;
                             case Operacion.DISCOVERY_REQUEST:
                                 if(op.getIdPaciente() < (prioridad1+prioridad2))
                                 {
@@ -159,10 +177,6 @@ public class BullyClient {
                                     } 
                                 }
                                 break;
-                            
-                            case Operacion.ERROR_ENTREGA:
-                                EmpezarEleccion();
-                                break;
 
                             case Operacion.ENTREGA_CORRECTA:
                                 synchronized(idOperacionMutex) {
@@ -185,6 +199,7 @@ public class BullyClient {
             idOperacion++;
             Operacion op = new Operacion(idOperacion, paciente, procedimeinto);
             op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), coordinadorDir.get());
+            op.setTimestamp(Instant.now().toString());
             porComprobar.put(idOperacion, op);
             try {
                 bl.SendOp(op);
