@@ -146,7 +146,11 @@ public class App {
       JSONArray pacient = nReq.getJSONArray("pacientes");
 
       for(int j = 0;j < pacient.length(); j++){
-        procedimientos.put(Integer.toString(j+1),pacient.get(j).toString());
+        JSONObject nproc = pacient.getJSONObject(j);
+        Set keys = nproc.keySet();
+        Object[] llave = keys.toArray();
+        String llaveid = String.valueOf((String)llave[0]);
+        procedimientos.put(llaveid,nproc.get(llaveid).toString());
       }
       request = new requerimiento(id,
                      cargo,
@@ -161,7 +165,7 @@ public class App {
     for(int indice = 0;indice<requerimientos.size();indice++){
         requerimiento reqI = requerimientos.get(indice);
         if(reqI.id == id){
-            System.out.println("Tiene trabajo");
+            System.out.println(reqI.procedimientos);
         }
     }
 
