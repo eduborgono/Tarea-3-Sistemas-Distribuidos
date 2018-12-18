@@ -158,7 +158,7 @@ public class BullyClient {
                             case Operacion.NUEVO_COORDINADOR_ALL:
                                 tsEleccion.set(null);
                                 coordinadorDir.set(op.getOrigen());
-                                System.out.println("\t\tEl nuevo coordinador es " + coordinadorDir.get())
+                                System.out.println("\t\tEl nuevo coordinador es " + coordinadorDir.get());
                                 break;
                             
                             case Operacion.DEFECTO:
@@ -192,6 +192,7 @@ public class BullyClient {
                                                 long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
                                                 if(diffInSeconds > 15) {
                                                     EmpezarEleccion();
+                                                    op.setTimestamp(null);
                                                 } 
                                             }
                                         }
