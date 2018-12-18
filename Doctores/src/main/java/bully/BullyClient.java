@@ -98,9 +98,9 @@ public class BullyClient {
             } catch(Exception e) { }
             while(!salir.get()) {
                 if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
+                    System.out.println("timeout win");
                     if(tsEleccion != null) {
                         try {
-                            System.out.println("timeout win");
                             long diffInSeconds = Duration.between(Instant.parse(tsEleccion), Instant.now()).getSeconds();
                             if(diffInSeconds > 15) {
                                 AscenderNodo();
@@ -220,8 +220,8 @@ public class BullyClient {
                                         auxOp.setEspecial(Operacion.NUEVO_COORDINADOR_REQUEST);
                                         try {
                                             bl.SendOp(auxOp);
-                                            System.out.println("\t\tEnviando consulta a " + auxOp.getDest());
                                         } catch(Exception e) {}
+                                        System.out.println("\t\tEnviando consulta a " + auxOp.getDest());
                                     }
                                 }
                             }
