@@ -31,7 +31,7 @@ Intrucciones para ejecutar archivos
 
 - Ejecutar Handler-all.jar en todas las maquinas, luego abrir los procesos de
 doctores, enfermeros y paramedicos en todas las maquinas.
-- Ejecutar con java -jar archivo
+- Ejecutar con java -jar Handler-all.jar
 
 ---------------------
 Comparación de métodos
