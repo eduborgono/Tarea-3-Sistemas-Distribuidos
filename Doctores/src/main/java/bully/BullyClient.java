@@ -161,6 +161,9 @@ public class BullyClient {
                             Operacion opAux = new Operacion(op.getId(), 0, "0");
                             opAux.Empaquetar(op.getDest(), op.getOrigen());
                             opAux.setEspecial(Operacion.ENTREGA_CORRECTA);
+                            try {
+                                bl.SendOp(op);
+                            } catch(Exception e) { }
                             break;
 
                         case Operacion.ENTREGA_CORRECTA:
