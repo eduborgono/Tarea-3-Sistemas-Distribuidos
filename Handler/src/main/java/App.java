@@ -147,19 +147,21 @@ class App {
                                             entry.getValue().socketWriter.write(gson.toJson(op));
                                             entry.getValue().socketWriter.write("\n");
                                             entry.getValue().socketWriter.flush();
-
-                                            Operacion opResponse = new Operacion(op.getId(), 0, "0");
-                                            opResponse.Empaquetar(op.getDest(), op.getOrigen());
-                                            opResponse.setEspecial(Operacion.ENTREGA_CORRECTA);
-                                            opPendientes.add(opResponse);
+                                            if(!Objects.equals(op.getEspecial(), Operacion.ERROR_ENTREGA) && !Objects.equals(op.getEspecial(), Operacion.ENTREGA_CORRECTA)) {
+                                                Operacion opResponse = new Operacion(op.getId(), 0, "0");
+                                                opResponse.Empaquetar(op.getDest(), op.getOrigen());
+                                                opResponse.setEspecial(Operacion.ENTREGA_CORRECTA);
+                                                opPendientes.add(opResponse);
+                                            }
                                         }
                                     } catch(Exception e) {
                                         System.out.println("Mensaje directo: No se pudo enviar mensaje a " + entry.getKey() );
-
-                                        Operacion opResponse = new Operacion(op.getId(), 0, "0");
-                                        opResponse.Empaquetar(op.getDest(), op.getOrigen());
-                                        opResponse.setEspecial(Operacion.ERROR_ENTREGA);
-                                        opPendientes.add(opResponse);
+                                        if(!Objects.equals(op.getEspecial(), Operacion.ERROR_ENTREGA) && !Objects.equals(op.getEspecial(), Operacion.ENTREGA_CORRECTA)) {
+                                            Operacion opResponse = new Operacion(op.getId(), 0, "0");
+                                            opResponse.Empaquetar(op.getDest(), op.getOrigen());
+                                            opResponse.setEspecial(Operacion.ERROR_ENTREGA);
+                                            opPendientes.add(opResponse);
+                                        }
                                     }
                                 }
                             }
