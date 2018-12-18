@@ -210,7 +210,7 @@ public class BullyClient {
         }
         else if(!Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_1) && !Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR_FASE_2)) {
             String[] dest = coordinadorDir.get().split(":");
-            if(isSocketAliveUitlity(dest[0], Integer.valueOf(dest[1]))) {
+            if(!isSocketAliveUitlity(dest[0], Integer.valueOf(dest[1]))) {
                 try {
                     EmpezarEleccion();
                 } catch(Exception e) { }
