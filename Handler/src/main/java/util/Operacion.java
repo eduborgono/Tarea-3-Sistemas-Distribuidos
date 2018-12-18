@@ -8,7 +8,6 @@ import lombok.ToString;
 public class Operacion {
 
     public static final String BROADCAST = "BROADCAST";
-    public static final String ESPERANDO_COORDINADOR = "ESPERANDO_COORDINADOR";
 
     public static final String DEFECTO = "DEFECTO";
     public static final String DISCOVERY_REQUEST = "DISCOVERY_REQUEST";

@@ -15,6 +15,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BullyClient {
+
+    public static final String ESPERANDO_COORDINADOR = "ESPERANDO_COORDINADOR";
+
     private int idOperacion;
     private final Object idOperacionMutex;
     private int identificador;
@@ -100,7 +103,7 @@ public class BullyClient {
             } catch(Exception e) { }
             while(!salir.get()) {
                 if(coordinadorDir.get() != null) {
-                    if(!Objects.equals(Operacion.ESPERANDO_COORDINADOR, coordinadorDir.get())) {
+                    if(!Objects.equals(ESPERANDO_COORDINADOR, coordinadorDir.get())) {
                         synchronized(idOperacionMutex) {
                             for (Map.Entry<Integer, Operacion> entry : porComprobar.entrySet()) {
                                 long diffInSeconds = Duration.between(Instant.parse(entry.getValue().getTimestamp()), Instant.now()).getSeconds();
@@ -169,7 +172,7 @@ public class BullyClient {
                             
                             case Operacion.NUEVO_COORDINADOR_RESPONSE:
                                 tsEleccion.set(null);
-                                coordinadorDir.set(Operacion.ESPERANDO_COORDINADOR);
+                                coordinadorDir.set(ESPERANDO_COORDINADOR);
                                 break;
                             
                             case Operacion.NUEVO_COORDINADOR_ALL:
@@ -201,7 +204,7 @@ public class BullyClient {
         if(coordinadorDir.get() == null) {
             EmpezarEleccion();
         }
-        while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), Operacion.ESPERANDO_COORDINADOR));
+        while((coordinadorDir.get() == null) || Objects.equals(coordinadorDir.get(), ESPERANDO_COORDINADOR));
         synchronized(idOperacionMutex) {
             idOperacion++;
             Operacion op = new Operacion(idOperacion, paciente, procedimeinto);

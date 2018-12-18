@@ -128,13 +128,17 @@ class App {
                             }
                             //Recibe mensaje de la subred y envía fuera de la subred (otra maquina)
                             else {
-                                String[] address = op.getDest().split(":");
-                                if(!Objects.equals(address[0], direccionIp)) {
-                                    try {
-                                        machineMap.get(address[0]).SendOp(op);
-                                    } catch(Exception e) {
-                                        System.out.println("MAQUINA: No se pudo enviar mensaje a " + address[0] );
+                                try {
+                                    String[] address = op.getDest().split(":");
+                                    if(!Objects.equals(address[0], direccionIp)) {
+                                        try {
+                                            machineMap.get(address[0]).SendOp(op);
+                                        } catch(Exception e) {
+                                            System.out.println("MAQUINA: No se pudo enviar mensaje a " + address[0] );
+                                        }
                                     }
+                                } catch(Exception e) {
+                                    System.out.println("FAIL: " + op.toString());
                                 }
                             }
                         }
