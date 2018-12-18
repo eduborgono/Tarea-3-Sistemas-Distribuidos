@@ -185,16 +185,16 @@ public class BullyClient {
                                             } catch(Exception e) { }
                                         }
                                         else {
-                                            long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
+                                            /*long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
                                             if(diffInSeconds > 15) {
                                                 EmpezarEleccion();
                                                 op.setTimestamp(null);
-                                            } 
+                                            } */
                                         }
                                     }
                                 }
-                                op.setEspecial(Operacion.POR_ENVIAR);
-                                opPendientes.add(op);
+                                /*op.setEspecial(Operacion.POR_ENVIAR);
+                                opPendientes.add(op);*/
                             }
                             else {
                                 porComprobar.remove(op.getId());
