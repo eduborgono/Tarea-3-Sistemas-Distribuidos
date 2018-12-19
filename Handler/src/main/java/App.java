@@ -169,7 +169,6 @@ class App {
                             if(Objects.equals(direccionIp, "10.6.40.205"))
                             {
                                 try {
-                                    System.out.println(op.getProcedimeinto());
                                     String[] separacion = op.getProcedimeinto().split("\\|");
                                     Escritura.EscribirPaciente(op.getIdPaciente(), separacion[1], separacion[2]);
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");

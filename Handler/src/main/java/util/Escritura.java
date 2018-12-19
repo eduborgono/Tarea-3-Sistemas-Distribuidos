@@ -246,7 +246,7 @@ public class Escritura {
         }
         try {
 
-			FileWriter file = new FileWriter("/home/fran/Escritorio/Distribuidos/Tarea3/Tarea-3-Sistemas-Distribuidos/data/pacientes.json");
+			FileWriter file = new FileWriter("/root/Tarea-3-Sistemas-Distribuidos/data/pacientes.json");
 			file.write(modifPacList.toString());
 			file.flush();
 			file.close();
