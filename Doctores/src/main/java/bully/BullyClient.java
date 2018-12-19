@@ -98,10 +98,9 @@ public class BullyClient {
             } catch(Exception e) { }
             String asdasdsda = Instant.now().toString();
             while(!salir.get()) {
-                if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1)
-                {
+                if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
                     asdasdsda = Instant.now().toString();
-                    System.out.println("\t\t\t\t"+coordinadorDir);
+                    System.out.println("\t\t\t\t1 "+coordinadorDir);
                 }
                 if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
                     System.out.println("timeout win");
@@ -115,6 +114,10 @@ public class BullyClient {
                     }
                 }
                 while(opPendientes.size() > 0) {
+                    if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
+                        asdasdsda = Instant.now().toString();
+                        System.out.println("\t\t\t\t\t2 "+coordinadorDir);
+                    }
                     Operacion op = opPendientes.remove();
                     switch(op.getEspecial()) {
                         case Operacion.DISCOVERY_REQUEST:
