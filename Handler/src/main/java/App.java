@@ -172,11 +172,15 @@ class App {
                                 try {
                                     System.out.println(op.getProcedimeinto());
                                     String[] separacion = op.getProcedimeinto().split("\\|");
-                                    Escritura.EscribirPaciente(op.getIdPaciente(), separacion[1], separacion[2]);
+                                    System.out.println(separacion[0]);
+                                    System.out.println(separacion[1]);
+                                    System.out.println(separacion[2]);
+                                    Escritura.Aux();
+                                    //Escritura.EscribirPaciente(op.getIdPaciente(), separacion[1], separacion[2]);
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                                     Date date = new Date();
                                     String log = "["+dateFormat.format(date)+"] "+separacion[1]+" "+separacion[0]+" "+separacion[2];
-                                    Escritura.EscribirLogFinal(log);
+                                    //Escritura.EscribirLogFinal(log);
                                 }
                                 catch(Exception e) { 
                                     e.printStackTrace(); }
