@@ -29,7 +29,7 @@ public class Escritura {
         StringBuilder strBld = new StringBuilder();
         boolean first = true;
         while((linea = br.readLine()) != null){
-            if(!first) strBld.append('&');
+            if(!first) strBld.append("&");
             strBld.append(linea);
             if(first) first = false;
         }
@@ -45,7 +45,7 @@ public class Escritura {
         BufferedWriter bw = null;
         FileWriter file = new FileWriter("logs.txt");
         bw = new BufferedWriter(file);
-        String[] partC = contenido.split("&");
+        String[] partC = contenido.split("\\&");
         for(int i=0; i < partC.length; i++){
             bw.write(partC[i]);
             bw.newLine();
