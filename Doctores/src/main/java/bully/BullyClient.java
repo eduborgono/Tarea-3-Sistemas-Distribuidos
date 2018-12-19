@@ -33,8 +33,8 @@ public class BullyClient {
     private final Queue<Operacion> opPendientes;
     private final Set<String> mayores;
     private final Map<Integer, Boolean> porComprobar;
-    private volatile String coordinadorDir;
-    private volatile String tsEleccion;
+    private String coordinadorDir;
+    private String tsEleccion;
 
     public BullyClient(int id, int experiencia, int estudios) throws IOException {
         identificador = id;
@@ -96,7 +96,13 @@ public class BullyClient {
             try {
                 Discovery();
             } catch(Exception e) { }
+            String asdasdsda = Instant.now().toString();
             while(!salir.get()) {
+                if(Duration.between(Instant.parse(tsEleccion), Instant.now()).getSeconds() > 1)
+                {
+                    asdasdsda = Instant.now().toString();
+                    System.out.println("\t\t\t\t"+coordinadorDir);
+                }
                 if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
                     System.out.println("timeout win");
                     if(tsEleccion != null) {
