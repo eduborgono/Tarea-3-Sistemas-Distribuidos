@@ -28,6 +28,7 @@ class App {
     private final Map<String, ClientHandler> threadMap;
     private final Object mutexMap;
     private final Queue<Operacion> opPendientes;
+    private final Queue<Operacion> prioritarias;
     private final Object mutexPendientes;
     private final AtomicBoolean cerrar;
     private String direccionIp;
@@ -38,6 +39,7 @@ class App {
         cerrar = new AtomicBoolean(false);
         threadMap = new HashMap<String, ClientHandler>();
         opPendientes = new LinkedList<>();
+        prioritarias = new LinkedList<>();
         mutexMap = new Object();
         mutexMachineMap = new Object();
         mutexPendientes = new Object();
@@ -109,39 +111,60 @@ class App {
         public void run() {
             while(!cerrar.get()) {
                 synchronized(mutexPendientes) {
-                    
+                    boolean skip = false;
                     while(opPendientes.size() > 0) {
                         Operacion op = opPendientes.remove();
                         synchronized(mutexMachineMap) {
-                            //Recibe mensaje de la subred y envía al resto (BROADCAST )
-                            if(Objects.equals(op.getDest(),Operacion.BROADCAST)) {
-                                String[] address = op.getOrigen().split(":");
-                                if(Objects.equals(address[0], direccionIp)) {
-                                    for (Map.Entry<String, Listener> machine : machineMap.entrySet()) {
-                                        try {
-                                            machine.getValue().SendOp(op);
-                                        } catch(Exception e) {
-                                            System.out.println("MAQUINA: No se pudo enviar mensaje a " + machine.getKey() );
-                                        }
-                                    }
-                                }
-                            }
-                            //Recibe mensaje de la subred y envía fuera de la subred (otra maquina)
-                            else {
+                            try {
                                 String[] address = op.getDest().split(":");
                                 if(!Objects.equals(address[0], direccionIp)) {
                                     try {
                                         machineMap.get(address[0]).SendOp(op);
                                     } catch(Exception e) {
-                                        System.out.println("MAQUINA: No se pudo enviar mensaje a " + address[0] );
+                                        System.out.println("MAQUINA: No se pudo enviar mensaje a " + op.toString());
+                                    }
+                                }
+                            } catch(Exception e) {
+                                System.out.println("FAIL: " + op.toString());
+                            }
+                        
+                        }
+                        synchronized(mutexMap) {
+                            //Recepcion de mensajes, reenvío hacia la subred
+                            for (Map.Entry<String, ClientHandler> entry : threadMap.entrySet()) {
+                                if(Objects.equals(op.getDest(), entry.getKey())) {
+                                    try {
+                                        synchronized(entry.getValue().mutexWriter) {
+                                            entry.getValue().socketWriter.write(gson.toJson(op));
+                                            entry.getValue().socketWriter.write("\n");
+                                            entry.getValue().socketWriter.flush();
+                                        }
+                                    } catch(Exception e) {
+                                        System.out.println("Mensaje directo: No se pudo enviar mensaje a " + entry.getKey() );
+                                    }
+                                }
+                            }
+                        }
+                        skip = true;
+                    }
+                    if(skip) continue;
+                    while(prioritarias.size() > 0) {
+                        Operacion op = prioritarias.remove();
+                        synchronized(mutexMachineMap) {
+                            String[] address = op.getOrigen().split(":");
+                            if(Objects.equals(address[0], direccionIp)) {
+                                for (Map.Entry<String, Listener> machine : machineMap.entrySet()) {
+                                    try {
+                                        machine.getValue().SendOp(op);
+                                    } catch(Exception e) {
+                                        System.out.println("MAQUINA: No se pudo enviar mensaje a " + machine.getKey() );
                                     }
                                 }
                             }
                         }
                         synchronized(mutexMap) {
-                            //Recepcion de mensajes, reenvío hacia la subred
                             for (Map.Entry<String, ClientHandler> entry : threadMap.entrySet()) {
-                                if(Objects.equals(op.getDest(), entry.getKey()) || Objects.equals(op.getDest(), Operacion.BROADCAST)) {
+                                if(!Objects.equals(op.getOrigen(), entry.getKey())) {
                                     try {
                                         synchronized(entry.getValue().mutexWriter) {
                                             entry.getValue().socketWriter.write(gson.toJson(op));
@@ -184,7 +207,12 @@ class App {
                 String msj = null;
                 while((msj = socketReader.readLine()) != null) {
                     Operacion op = gson.fromJson(msj, Operacion.class);
-                    opPendientes.add(op);
+                    if(Objects.equals(op.getDest(), Operacion.BROADCAST)) {
+                        prioritarias.add(op);
+                    }
+                    else {
+                        opPendientes.add(op);
+                    }
                 }
             }
             catch (Exception e) { }

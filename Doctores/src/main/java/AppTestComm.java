@@ -5,7 +5,6 @@ import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 import bully.BullyClient;
-import bully.Operacion;
 
 public class AppTestComm {
     public String getGreeting() {
@@ -19,7 +18,7 @@ public class AppTestComm {
             int id = ThreadLocalRandom.current().nextInt(0, 20 + 1);
             int experiencia = ThreadLocalRandom.current().nextInt(0, 20 + 1);
             int estudios = ThreadLocalRandom.current().nextInt(5, 20 + 1);
-            System.out.println(id + " " + experiencia + " " + estudios);
+            System.out.println(id + ": prioridad de " + (experiencia + estudios));
             BullyClient bullyClient = new BullyClient(id, experiencia, estudios);
             Scanner input = new Scanner(System.in);
             int in;
@@ -35,10 +34,10 @@ public class AppTestComm {
             while((in = input.nextInt()) != 0) {
                 
                 if(in == 1) {
-                    bullyClient.SendOp(0, "bailar", Operacion.BROADCAST);
+                    bullyClient.SendOp(0, "bailar");
                 }
                 else if(in == 2) {
-                    bullyClient.SendOp(2, "cantar", "none");
+                    bullyClient.SendOp(2, "cantar");
                 }
             } 
             bullyClient.Dispose();

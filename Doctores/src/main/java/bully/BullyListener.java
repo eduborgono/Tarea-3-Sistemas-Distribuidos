@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,17 +24,16 @@ import lombok.Getter;
 
 class BullyListener extends Thread {
 
-    private final Object mutex;
     private Socket clientSocket;
     private BufferedWriter socketWriter;
     private BufferedReader socketReader;
-    private AtomicBoolean apagar;
     private Gson gson;
     @Getter private String direccionIp;
     @Getter private int puerto;
+    private final Queue<Operacion> opPendientes;
 
-    public BullyListener() throws IOException {
-        mutex = new Object();
+    public BullyListener(Queue<Operacion> opPendientes) throws IOException {
+        this.opPendientes = opPendientes;
         clientSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 7777); 
         direccionIp = InetAddress.getLocalHost().getHostAddress();//InetAddress.getLocalHost().getHostAddress();
         puerto = clientSocket.getLocalPort();
@@ -48,7 +48,10 @@ class BullyListener extends Thread {
         try {
             while((msj = socketReader.readLine()) != null) {
                 Operacion op = gson.fromJson(msj, Operacion.class);
-                System.out.println(op.toString());
+                if(Objects.equals(op.getEspecial(), Operacion.DEFECTO)) {
+                    System.out.println("\t" + op.toString());
+                }
+                opPendientes.offer(op);
             }
         } catch (Exception e) {  }
         System.out.println("Adios");
