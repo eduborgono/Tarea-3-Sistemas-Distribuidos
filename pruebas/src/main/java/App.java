@@ -51,7 +51,42 @@ public class App {
           pacModif.put("examenes", examenes);
           JSONArray medicamentos = pacienteList.getJSONArray("medicamentos");
           pacModif.put("medicamentos", medicamentos);
+          JSONArray tratamientos = pacienteList.getJSONArray("tratamientos/procedimientos");
+          JSONArray tratamientosModif = new JSONArray();
+          JSONObject t = tratamientos.getJSONObject(0);
           //Se modifica procedimiento
+          JSONArray a = t.getJSONArray("asignados");
+          JSONArray c = t.getJSONArray("completados");
+          if(accion.equals("asignar")){
+            if(cargo.equals("doctor") || cargo.equals("Doctor")){
+              //Se modifica remedio suministrado
+              a.put(Proc);
+            }
+            else{
+              System.out.println("No se pudo modificar, no tiene permiso o el cargo esta mal escrito");
+              //no se hace la modificacion
+              pacModif.put("tratamientos/procedimientos", tratamientos);
+              modifPacList.put(pacModif);
+            }
+          }
+          else if(accion.equals("completar")){
+            if(cargo.equals("doctor") || cargo.equals("Doctor") || cargo.equals("enfermero") || cargo.equals("Enfermero")){
+              //Se modifica remedio suministrado
+              c.put(Proc);
+            }
+            else{
+              System.out.println("No se pudo modificar, no tiene permiso o el cargo esta mal escrito");
+              //no se hace la modificacion
+              pacModif.put("tratamientos/procedimientos", tratamientos);
+              modifPacList.put(pacModif);
+            }
+          }
+          t.put("asignados", a);
+          t.put("completados", c);
+          tratamientosModif.put(t);
+          pacModif.put("tratamientos/procedimientos", tratamientosModif);
+          modifPacList.put(pacModif);
+
         }
         else if(tipoProc.equals("medicamento")){
           //Se agregan examenes y tratamientos
@@ -59,7 +94,41 @@ public class App {
           pacModif.put("tratamientos/procedimientos", tratamientos);
           JSONArray examenes = pacienteList.getJSONArray("examenes");
           pacModif.put("examenes", examenes);
+          JSONArray medicamentos = pacienteList.getJSONArray("medicamentos");
+          JSONArray medicamentosModif = new JSONArray();
+          JSONObject m = medicamentos.getJSONObject(0);
           //Se modifica medicamento
+          JSONArray r = m.getJSONArray("recetados");
+          JSONArray s = m.getJSONArray("suministrados");
+          if(accion.equals("recetar")){
+            if(cargo.equals("doctor") || cargo.equals("Doctor")){
+              //Se modifica remedio suministrado
+              s.put(Proc);
+            }
+            else{
+              System.out.println("No se pudo modificar, no tiene permiso o el cargo esta mal escrito");
+              //no se hace la modificacion
+              pacModif.put("medicamentos", medicamentos);
+              modifPacList.put(pacModif);
+            }
+          }
+          else if(accion.equals("suministrar")){
+            if(cargo.equals("doctor") || cargo.equals("Doctor") || cargo.equals("enfermero") || cargo.equals("Enfermero")){
+              //Se modifica remedio suministrado
+              s.put(Proc);
+            }
+            else{
+              System.out.println("No se pudo modificar, no tiene permiso o el cargo esta mal escrito");
+              //no se hace la modificacion
+              pacModif.put("medicamentos", medicamentos);
+              modifPacList.put(pacModif);
+            }
+          }
+          m.put("recetados", r);
+          m.put("suministrados", s);
+          medicamentosModif.put(m);
+          pacModif.put("medicamentos", medicamentosModif);
+          modifPacList.put(pacModif);
         }
         else if(tipoProc.equals("examen")){
           //Se agregan medicamentos y tratamientos
@@ -101,9 +170,7 @@ public class App {
           e.put("realizados", r);
           examenesModif.put(e);
           pacModif.put("examenes", examenesModif);
-          System.out.println(pacModif);
           modifPacList.put(pacModif);
-          System.out.println(modifPacList);
         }
         else{
           System.out.println("Accion invalida");
@@ -125,7 +192,7 @@ public class App {
     }
     try {
 
-			FileWriter file = new FileWriter("/home/fran/Escritorio/Distribuidos/Tarea3/Tarea-3-Sistemas-Distribuidos/data/prueba.json");
+			FileWriter file = new FileWriter("/home/fran/Escritorio/Distribuidos/Tarea3/Tarea-3-Sistemas-Distribuidos/data/pacientes.json");
 			file.write(modifPacList.toString());
 			file.flush();
 			file.close();

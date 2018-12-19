@@ -31,7 +31,7 @@ Consideraciones
     - String de tres palabras del tipo "accion tipo-procedimiento procedimiento",
       donde:
 
-      > accion puede ser: asignar, realizar, pedir, recetar o suministrar.
+      > accion puede ser: asignar, completar, realizar, pedir, recetar o suministrar.
       > tipo-procedimiento puede ser: tratamiento, procedimiento, examen o medicamento.
       > procedimiento: cualquier nombre coherente a la acción que se está realizando
 
