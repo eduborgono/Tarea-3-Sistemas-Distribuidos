@@ -98,7 +98,7 @@ public class BullyClient {
             } catch(Exception e) { }
             String asdasdsda = Instant.now().toString();
             while(!salir.get()) {
-                if(Duration.between(Instant.parse(tsEleccion), Instant.now()).getSeconds() > 1)
+                if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1)
                 {
                     asdasdsda = Instant.now().toString();
                     System.out.println("\t\t\t\t"+coordinadorDir);
