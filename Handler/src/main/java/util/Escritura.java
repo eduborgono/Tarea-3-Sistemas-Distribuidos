@@ -18,6 +18,10 @@ public class Escritura {
      * 
      */
 
+    public static void Aux() {
+        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+    }
+
     public static String CopiarLog() throws IOException{
         System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         FileReader fr = new FileReader("logs.txt");
@@ -38,6 +42,7 @@ public class Escritura {
      * Funcion que se encarga de sobreescribir todo lo que tenga un log
      */
     public static void UpdateLog(String contenido)throws IOException{
+        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         BufferedWriter bw = null;
         FileWriter file = new FileWriter("logs.txt");
         bw = new BufferedWriter(file);
@@ -53,6 +58,7 @@ public class Escritura {
      * Funcion que añade al final del log un evento.
      */
     public static void EscribirLogFinal(String contenido) throws IOException {
+        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         File file = new File("logs.txt");
         // Si el archivo no existe es creado
         if (!file.exists()) {
