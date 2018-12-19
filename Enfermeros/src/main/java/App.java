@@ -1,4 +1,3 @@
-import java.*;
 import java.io.*;
 import java.util.*;
 import org.apache.commons.io.FileUtils;
@@ -13,7 +12,7 @@ public class App {
     convertido en un objeto json, luego cada tiop array de cada funcionario es convertido
     en un Jsonarray para volver a parsearlo y poder crear una lista del tipo correspondiente
     a cada tipo de funcionario */
-    File file = new File("/home/fran/Escritorio/Distribuidos/Tarea3/Tarea-3-Sistemas-Distribuidos/Doctores/src/main/java/funcionarios.json");
+    File file = new File("funcionarios.json");
     String content = FileUtils.readFileToString(file, "utf-8");
     // Convert JSON string to JSONObject
     JSONObject funcionariosJsonObject = new JSONObject(content);
@@ -21,14 +20,14 @@ public class App {
     JSONArray enf = funcionariosJsonObject.getJSONArray("enfermero");
 
     //Instancia de cada tipo de funcionario
-    enfermero enfermero;
+    Enfermero enfermero;
     //Listas para cada tipo de funcionarios
-    List<enfermero> enfermeros = new ArrayList<enfermero>();
+    List<Enfermero> enfermeros = new ArrayList<Enfermero>();
 
     //JSONObject obtener datos de cada enfermeros
     for (int i = 0; i < enf.length(); i++) {
       JSONObject nEnfermero = enf.getJSONObject(i);
-      enfermero = new enfermero(nEnfermero.getInt("id"),
+      enfermero = new Enfermero(nEnfermero.getInt("id"),
                      nEnfermero.getString("nombre"),
                      nEnfermero.getString("apellido"),
                      nEnfermero.getInt("estudios"),
@@ -36,106 +35,13 @@ public class App {
       enfermeros.add(enfermero);
     }
 
-    /**** LECTURA DE PACIENTES ****/
-    /*El mismo procedimiento explicado anteriormente*/
-    paciente pac;
-    //Listas de pacientes
-    List<paciente> pacientes = new ArrayList<paciente>();
-    File file2 = new File("/home/fran/Escritorio/Distribuidos/Tarea3/Tarea-3-Sistemas-Distribuidos/data/pacientes.json");
-    String content2 = FileUtils.readFileToString(file2, "utf-8");
-    //Extraer arreglo de pacientes
-    JSONArray pacientesJsonArray = new JSONArray(content2);
-    //Extraer pacientes
-    for(int i=0; i < pacientesJsonArray.length(); i++){
-      List<String> enfermedadesList = new ArrayList<String>();
-      List<String> procesoAList = new ArrayList<String>();
-      List<String> procesoCList = new ArrayList<String>();
-      List<String> examenRList = new ArrayList<String>();
-      List<String> examenNRList = new ArrayList<String>();
-      List<String> medRList = new ArrayList<String>();
-      List<String> medSList = new ArrayList<String>();
-      //Extraer a los pacientes
-      JSONObject pacienteList = pacientesJsonArray.getJSONObject(i);
-      //Extraer id
-      int id = pacienteList.getInt("paciente_id");
-      //Extraer datos del paciente
-      JSONObject d = null;
-      JSONArray datos = pacienteList.getJSONArray("datos personales");
-      for(int j=0; j<datos.length(); j++){
-        d = datos.getJSONObject(j);
-      }
-      //Extraer enfermedades del paciente
-      JSONArray enfermedades = pacienteList.getJSONArray("enfermedades");
-      for(int j=0; j<enfermedades.length(); j++){
-        enfermedadesList.add(enfermedades.get(j).toString());
-      }
-      //Extraer tratamientos del paciente
-      JSONArray tratamientos = pacienteList.getJSONArray("tratamientos/procedimientos");
-      for(int j=0; j<tratamientos.length(); j++){
-        JSONObject t = tratamientos.getJSONObject(j);
-        //Extraer tratamientos asignados
-        JSONArray asignados = t.getJSONArray("asignados");
-        for(int k=0; k<asignados.length(); k++){
-          procesoAList.add(asignados.get(k).toString());
-        }
-        //Extraer tratamientos completados
-        JSONArray completados = t.getJSONArray("completados");
-        for(int k=0; k<completados.length(); k++){
-          procesoCList.add(completados.get(k).toString());
-        }
-      }
-      //Extraer examenes
-      JSONArray examenes = pacienteList.getJSONArray("examenes");
-      for(int j=0; j<examenes.length(); j++){
-        JSONObject e = examenes.getJSONObject(j);
-        //Extraer examenes realizados
-        JSONArray realizados = e.getJSONArray("realizados");
-        for(int k=0; k<realizados.length(); k++){
-          examenRList.add(realizados.get(k).toString());
-        }
-        //Extraer examenes no realizados
-        JSONArray NRealizados = e.getJSONArray("no realizados");
-        for(int k=0; k<NRealizados.length(); k++){
-          examenNRList.add(NRealizados.get(k).toString());
-        }
-      }
-      //Extraer medicamentos
-      JSONArray medicamentos = pacienteList.getJSONArray("medicamentos");
-      for(int j=0; j<medicamentos.length(); j++){
-        JSONObject m = medicamentos.getJSONObject(j);
-        //Extraer medicamentos recetados
-        JSONArray recetados = m.getJSONArray("recetados");
-        for(int k=0; k<recetados.length(); k++){
-          medRList.add(recetados.get(k).toString());
-        }
-        //Extraer examenes suministrados
-        JSONArray suministrados = m.getJSONArray("suministrados");
-        for(int k=0; k<suministrados.length(); k++){
-          medSList.add(suministrados.get(k).toString());
-        }
-      }
-      pac = new paciente(id,
-                         d.getString("nombre"),
-                         d.getString("rut"),
-                         d.getString("edad"),
-                         enfermedadesList,
-                         procesoAList,
-                         procesoCList,
-                         examenRList,
-                         examenNRList,
-                         medRList,
-                         medSList
-                         );
-      pacientes.add(pac);
-    }
-
     /**** LECTURA DE REQUERIMIENTOS ****/
     /*El mismo procedimiento explicado anteriormente*/
-    requerimiento request;
+    Requerimiento request;
     //Listas de requerimientos
-    List<requerimiento> requerimientos = new ArrayList<requerimiento>();
+    List<Requerimiento> requerimientos = new ArrayList<Requerimiento>();
 
-    File file3 = new File("/home/fran/Escritorio/Distribuidos/Tarea3/Tarea-3-Sistemas-Distribuidos/data/requerimientos.json");
+    File file3 = new File("requerimientos.json");
     String content3 = FileUtils.readFileToString(file3, "utf-8");
     // Convert JSON string to JSONObject
     JSONObject requerimientosJsonObject = new JSONObject(content3);
@@ -150,7 +56,7 @@ public class App {
       for(int j = 0;j < pacient.length(); j++){
         procedimientos.put(Integer.toString(j+1),pacient.get(j).toString());
       }
-      request = new requerimiento(id,
+      request = new Requerimiento(id,
                      cargo,
                      procedimientos);
       requerimientos.add(request);
@@ -159,19 +65,41 @@ public class App {
     System.out.println("Ingrese id enfermero: ");
     int id = sc.nextInt();
 
-    for(int indice = 0;indice<requerimientos.size();indice++){
-        requerimiento reqI = requerimientos.get(indice);
-        String enfermero = new String("enfermero");
-        if(reqI.id == id && enfermero.equals(reqI.cargo)){
-          for (HashMap.Entry<String, String> entry : reqI.procedimientos.entrySet()) {
-            System.out.println("Enter");
-            String cadena = sc.nextLine();
-            /***AQUI LA FUNCION***/
-            //trabajo(entry.getKey,entry.getValue);
-            //comentar linea de abajo
-            System.out.println("clave=" + entry.getKey() + ", valor=" + entry.getValue());
-          }
+    Enfermero enfermerofinal = null;
+    for(int indice = 0;indice<enfermeros.size();indice++){
+        Enfermero enfaux = enfermeros.get(indice);
+        if(enfaux.id == id){
+          enfermerofinal = enfaux;
         }
     }
+
+    try {
+      if(enfermerofinal != null) {
+        EnfermeroPro enfermeroPro = new EnfermeroPro(enfermerofinal);
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                System.out.println("Matando cliente....");
+                try {
+                  enfermeroPro.Dispose();
+                  sc.close();
+                } catch (Exception e) { }
+            }
+        });
+
+        for(int indice = 0;indice<requerimientos.size();indice++){
+            Requerimiento reqI = requerimientos.get(indice);
+            String sEnfermero = new String("enfermero");
+            if(reqI.id == id && sEnfermero.equals(reqI.cargo)){
+              for (HashMap.Entry<String, String> entry : reqI.procedimientos.entrySet()) {
+                System.out.println("Enter");
+                sc.nextLine();
+                enfermeroPro.bullyClient.SendOp(Integer.valueOf(entry.getKey()), entry.getValue());
+                
+              }
+            }
+        }
+      }
+    } catch (Exception e) { }
   }
 }

@@ -6,6 +6,11 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -17,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import util.Operacion;
+import util.Escritura;
 import util.Listener;
 
 class App {
@@ -108,12 +114,64 @@ class App {
     }
 
     private class ReSender extends Thread {
+        private String ultimoSpreading;
         public void run() {
+            Instant ultimoSpreading = Instant.now();
             while(!cerrar.get()) {
+                if(Objects.equals(direccionIp, "10.6.40.205:7777")) {
+                    if(Duration.between(ultimoSpreading, Instant.now()).getSeconds() > 20) {
+                        try {
+                            String archivo = Escritura.CopiarLog();
+                            Operacion opFile = new Operacion(0, 0, archivo);
+                            opFile.setEspecial(Operacion.COPY_LOG);
+                            opFile.Empaquetar("0", "10.6.40.206:7777");
+                            machineMap.get("10.6.40.206").SendOp(opFile);
+                            opFile.Empaquetar("0", "10.6.40.207:7777");
+                            machineMap.get("10.6.40.207").SendOp(opFile);
+                            opFile.Empaquetar("0", "10.6.40.208:7777");
+                            machineMap.get("10.6.40.208").SendOp(opFile);
+                        } catch(Exception e) {}
+                    }
+                }
                 synchronized(mutexPendientes) {
                     boolean skip = false;
-                    while(opPendientes.size() > 0) {
+                    while(!opPendientes.isEmpty()) {
                         Operacion op = opPendientes.remove();
+                        if(Objects.equals(op.getEspecial(), Operacion.WRITE_FLAG)) {
+                            if(Objects.equals(direccionIp, "10.6.40.205:7777"))
+                            {
+                                try {
+                                    String[] separacion = op.getProcedimeinto().split("|");
+                                    Escritura.EscribirPaciente(op.getIdPaciente(), separacion[1], separacion[2]);
+                                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                                    Date date = new Date();
+                                    String log = "["+dateFormat.format(date)+"] "+separacion[1]+" "+separacion[0]+" "+separacion[2];
+                                    Escritura.EscribirLogFinal(log);
+                                }
+                                catch(Exception e) { }
+                                continue;
+                            }
+                        }
+                        else if(Objects.equals(op.getEspecial(), Operacion.NUEVO_COORDINADOR_ALL)) {
+                            if(Objects.equals(direccionIp, "10.6.40.205:7777"))
+                            {
+                                try {
+                                    String[] separacion = op.getProcedimeinto().split("|");
+                                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                                    Date date = new Date();
+                                    String log = "["+dateFormat.format(date)+"] "+separacion[1]+" "+separacion[0]+" es ahora el coordinador";
+                                    Escritura.EscribirLogFinal(log);
+                                }
+                                catch(Exception e) { }
+                                continue;
+                            }
+                        }
+                        else if(Objects.equals(op.getEspecial(), Operacion.COPY_LOG)) {
+                            try {
+                                Escritura.UpdateLog(op.getProcedimeinto());
+                            } catch(Exception e) {}
+                            continue;
+                        }
                         synchronized(mutexMachineMap) {
                             try {
                                 String[] address = op.getDest().split(":");
@@ -148,7 +206,7 @@ class App {
                         skip = true;
                     }
                     if(skip) continue;
-                    while(prioritarias.size() > 0) {
+                    while(!prioritarias.isEmpty()) {
                         Operacion op = prioritarias.remove();
                         synchronized(mutexMachineMap) {
                             String[] address = op.getOrigen().split(":");
