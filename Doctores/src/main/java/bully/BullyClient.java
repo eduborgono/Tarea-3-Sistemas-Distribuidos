@@ -33,8 +33,8 @@ public class BullyClient {
     private final Queue<Operacion> opPendientes;
     private final Set<String> mayores;
     private final Map<Integer, Boolean> porComprobar;
-    private String coordinadorDir;
-    private String tsEleccion;
+    private volatile String coordinadorDir;
+    private volatile String tsEleccion;
 
     public BullyClient(int id, int experiencia, int estudios) throws IOException {
         identificador = id;
@@ -193,8 +193,8 @@ public class BullyClient {
                                         else {
                                             long diffInSeconds = Duration.between(Instant.parse(op.getTimestamp()), Instant.now()).getSeconds();
                                             if(diffInSeconds > 15) {
-                                                EmpezarEleccion();
                                                 op.setTimestamp(null);
+                                                EmpezarEleccion();
                                             }
                                         }
                                     }
