@@ -17,13 +17,8 @@ public class Escritura {
      * Función que se encarga de retornar el log de la maquina central.
      * 
      */
-
-    public static void Aux() {
-        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-    }
-
     public static String CopiarLog() throws IOException{
-        FileReader fr = new FileReader("logs.txt");
+        FileReader fr = new FileReader("/root/Tarea-3-Sistemas-Distribuidos/data/logs.txt");
         BufferedReader br = new BufferedReader(fr);
         String linea;
         StringBuilder strBld = new StringBuilder();
@@ -41,9 +36,8 @@ public class Escritura {
      * Funcion que se encarga de sobreescribir todo lo que tenga un log
      */
     public static void UpdateLog(String contenido)throws IOException{
-        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         BufferedWriter bw = null;
-        FileWriter file = new FileWriter("logs.txt");
+        FileWriter file = new FileWriter("/root/Tarea-3-Sistemas-Distribuidos/data/logs.txt");
         bw = new BufferedWriter(file);
         String[] partC = contenido.split("\\&");
         for(int i=0; i < partC.length; i++){
@@ -57,8 +51,7 @@ public class Escritura {
      * Funcion que añade al final del log un evento.
      */
     public static void EscribirLogFinal(String contenido) throws IOException {
-        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        File file = new File("logs.txt");
+        File file = new File("/root/Tarea-3-Sistemas-Distribuidos/data/logs.txt");
         // Si el archivo no existe es creado
         if (!file.exists()) {
             file.createNewFile();
@@ -85,7 +78,7 @@ public class Escritura {
         String Proc = proce[2];
 
         /*ARCHIVO PACIENTES*/
-        File file2 = new File("pacientes.json");
+        File file2 = new File("/root/Tarea-3-Sistemas-Distribuidos/data/pacientes.json");
         String content2 = FileUtils.readFileToString(file2, "utf-8");
         JSONArray pacientesJsonArray = new JSONArray(content2);
 

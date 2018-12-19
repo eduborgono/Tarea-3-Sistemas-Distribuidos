@@ -12,7 +12,7 @@ public class App {
     convertido en un objeto json, luego cada tiop array de cada funcionario es convertido
     en un Jsonarray para volver a parsearlo y poder crear una lista del tipo correspondiente
     a cada tipo de funcionario */
-    File file = new File("funcionarios.json");
+    File file = new File("/root/Tarea-3-Sistemas-Distribuidos/data/funcionarios.json");
     String content = FileUtils.readFileToString(file, "utf-8");
     // Convert JSON string to JSONObject
     JSONObject funcionariosJsonObject = new JSONObject(content);
@@ -41,7 +41,7 @@ public class App {
     //Listas de requerimientos
     List<Requerimiento> requerimientos = new ArrayList<Requerimiento>();
 
-    File file3 = new File("requerimientos.json");
+    File file3 = new File("/root/Tarea-3-Sistemas-Distribuidos/data/requerimientos.json");
     String content3 = FileUtils.readFileToString(file3, "utf-8");
     // Convert JSON string to JSONObject
     JSONObject requerimientosJsonObject = new JSONObject(content3);
