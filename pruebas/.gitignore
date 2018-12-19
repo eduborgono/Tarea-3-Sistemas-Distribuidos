@@ -1,0 +1,20 @@
+*.iml
+.gradle
+.settings
+.vscode
+/local.properties
+.idea/*
+!.idea/copyright
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+ktlint
+
+# Java build artifacts class files
+*.class
+
+# other generated files
+bin/
+gen/
+build/
