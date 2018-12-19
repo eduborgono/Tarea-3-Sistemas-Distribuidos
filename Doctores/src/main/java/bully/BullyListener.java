@@ -51,7 +51,7 @@ class BullyListener extends Thread {
                 if(!Objects.equals(op.getEspecial(), Operacion.ERROR_ENTREGA) && !Objects.equals(op.getEspecial(), Operacion.ENTREGA_CORRECTA)) {
                     System.out.println("\t" + op.toString());
                 }
-                opPendientes.add(op);
+                opPendientes.offer(op);
             }
         } catch (Exception e) {  }
         System.out.println("Adios");

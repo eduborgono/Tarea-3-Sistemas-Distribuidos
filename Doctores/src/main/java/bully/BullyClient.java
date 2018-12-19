@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -44,6 +45,7 @@ public class BullyClient {
         prioridad2 = estudios;
         salir = new AtomicBoolean(false);
         opPendientes = new ConcurrentLinkedQueue<>();
+        //opPendientes = Collections.synchronizedList(new LinkedList<>());
         mayores = new HashSet<String>();
         porComprobar = new HashMap<Integer, Boolean>();
         coordinadorDir = null;
@@ -63,13 +65,13 @@ public class BullyClient {
     private void EmpezarEleccion() {
         Operacion op = new Operacion(0, 0, "0");
         op.setEspecial(Operacion.NUEVO_COORDINADOR_INTENT);
-        opPendientes.add(op);
+        opPendientes.offer(op);
     }
 
     private void AscenderNodo() {
         Operacion op = new Operacion(0, 0, "0");
         op.setEspecial(Operacion.ASCENDER_INTENT);
-        opPendientes.add(op);
+        opPendientes.offer(op);
     }
 
     public void Discovery() throws IOException  {
@@ -86,7 +88,7 @@ public class BullyClient {
             op.setEspecial(Operacion.POR_ENVIAR);
             op.setTimestamp(null);
             porComprobar.put(op.getId(), false);
-            opPendientes.add(op);
+            opPendientes.offer(op);
         }
     }
 
@@ -98,10 +100,10 @@ public class BullyClient {
             } catch(Exception e) { }
             String asdasdsda = Instant.now().toString();
             while(!salir.get()) {
-                if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
+                /*if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
                     asdasdsda = Instant.now().toString();
                     System.out.println("\t\t\t\t1 "+coordinadorDir);
-                }
+                }*/
                 if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
                     System.out.println("timeout win");
                     if(tsEleccion != null) {
@@ -113,12 +115,12 @@ public class BullyClient {
                         } catch (Exception e) { }
                     }
                 }
-                while(opPendientes.size() > 0) {
-                    if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
+                if(!opPendientes.isEmpty()) {
+                    /*if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
                         asdasdsda = Instant.now().toString();
                         System.out.println("\t\t\t\t\t2 "+coordinadorDir);
-                    }
-                    Operacion op = opPendientes.remove();
+                    }*/
+                    Operacion op = opPendientes.poll();
                     switch(op.getEspecial()) {
                         case Operacion.DISCOVERY_REQUEST:
                             if((prioridad1+prioridad2) > op.getIdPaciente())
@@ -186,7 +188,7 @@ public class BullyClient {
                                 if(coordinadorDir == null) {
                                     try {
                                         EmpezarEleccion();
-                                        opPendientes.add(op);
+                                        opPendientes.offer(op);
                                     } catch(Exception e) { }
                                 }
                                 else {
@@ -208,7 +210,7 @@ public class BullyClient {
                                         }
                                     }
                                     op.setEspecial(Operacion.POR_ENVIAR);
-                                    opPendientes.add(op);
+                                    opPendientes.offer(op);
                                 }
                             }
                             else {
