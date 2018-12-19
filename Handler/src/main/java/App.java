@@ -149,7 +149,6 @@ class App {
                 if(Objects.equals(direccionIp, "10.6.40.205")) {
                     if(Duration.between(ultimoSpreading, Instant.now()).getSeconds() > 20) {
                         try {
-                            Escritura.Aux();
                             ultimoSpreading = Instant.now();
                             String archivo = Escritura.CopiarLog();
                             Operacion opFile = new Operacion(0, 0, archivo);
@@ -225,7 +224,6 @@ class App {
                             if(Objects.equals(direccionIp, "10.6.40.205"))
                             {
                                 try {
-                                    Escritura.Aux();
                                     String[] separacion = op.getProcedimeinto().split("\\|");
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                                     Date date = new Date();
