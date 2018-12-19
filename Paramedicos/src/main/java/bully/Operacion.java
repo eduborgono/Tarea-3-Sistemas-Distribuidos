@@ -32,6 +32,13 @@ public class Operacion {
     @Getter @Setter private String especial;
     @Getter @Setter private String timestamp;
 
+    /**
+     * 
+     * Clase que se encarga de empaquetar la información que se enviaran los nodos.
+     * Tales como id de pacientes, procedimientos, configuracion, broadcasting,
+     * eventos, etc.
+     * 
+     */
     public Operacion() {}
 
     public Operacion(int id, int idPaciente, String procedimeinto) {

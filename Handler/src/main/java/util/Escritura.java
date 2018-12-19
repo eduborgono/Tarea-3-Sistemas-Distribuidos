@@ -12,6 +12,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Escritura {
+    /**
+     * 
+     * Función que se encarga de retornar el log de la maquina central.
+     * 
+     */
+
     public static String CopiarLog() throws IOException{
         FileReader fr = new FileReader("logs.txt");
         BufferedReader br = new BufferedReader(fr);
@@ -27,6 +33,9 @@ public class Escritura {
         return strBld.toString();
     }
 
+    /**
+     * Funcion que se encarga de sobreescribir todo lo que tenga un log
+     */
     public static void UpdateLog(String contenido)throws IOException{
         BufferedWriter bw = null;
         FileWriter file = new FileWriter("logs.txt");
@@ -39,6 +48,9 @@ public class Escritura {
         bw.close();
     }
 
+    /**
+     * Funcion que añade al final del log un evento.
+     */
     public static void EscribirLogFinal(String contenido) throws IOException {
         File file = new File("logs.txt");
         // Si el archivo no existe es creado
@@ -54,6 +66,11 @@ public class Escritura {
         bw.close();
     }
 
+    /**
+     * 
+     * Funcion que se encarga de agregar un evento relacionado con un paciente, al archivo
+     * de pacientes.
+     */
     public static void EscribirPaciente(int id_paciente, String cargo, String procedimiento) throws Exception {
         //Separo procedimientos
         String[] proce = procedimiento.split(" ");

@@ -31,6 +31,10 @@ public class BullyClient {
     private String tsEleccion;
     private boolean soyCoordinador;
 
+    /**
+     * Clase principal que se encarga de manejar el algoritmo de bully
+     * para doctores.
+     */
     public BullyClient(String id, int experiencia, int estudios) throws IOException {
         soyCoordinador = false;
         identificador = id;
@@ -50,24 +54,37 @@ public class BullyClient {
         new Trabajar().start();
     }
 
+    /**
+     * Funcion de limpieza, relacionada con los threads que funcionan en sengudno plano
+     */
     public void Dispose() {
         bl.Dispose();
         salir.set(true);
     }
 
-
+    /**
+     * Envía un evento de eleccion a los elementos de mayor nivel de la red
+     */
     private void EmpezarEleccion() {
         Operacion op = new Operacion(0, 0, "0");
         op.setEspecial(Operacion.NUEVO_COORDINADOR_INTENT);
         opPendientes.offer(op);
     }
 
+    /**
+     * Eleva un nodo al estado de coordinador
+     */
     private void AscenderNodo() {
         Operacion op = new Operacion(0, 0, "0");
         op.setEspecial(Operacion.ASCENDER_INTENT);
         opPendientes.offer(op);
     }
 
+    /**
+     * Cuando un nodo se une a la red busca al resto de nodos conectados.
+     * Sirve para el proceso de eleccion, envío de mensajes a los nodos de mayor nivel
+     * 
+     */
     private void Discovery() throws IOException  {
         Operacion op = new Operacion(2, prioridad1+prioridad2, "0");
         op.Empaquetar(bl.getDireccionIp() + ":" + bl.getPuerto(), Operacion.BROADCAST);
@@ -75,6 +92,9 @@ public class BullyClient {
         bl.SendOp(op);
     }
 
+    /**
+     * Envío de mensajes a otro nodo, o a la red completa --broadcasting--
+     */
     public void SendOp(int paciente, String procedimeinto) throws IOException {
         synchronized(idOperacionMutex) {
             idOperacion++;
@@ -87,6 +107,9 @@ public class BullyClient {
         }
     }
 
+    /**
+     * Thread que se encarga de manejar los eventos que ocurren en la red y subred
+     */
     private class Trabajar extends Thread {
         @Override
         public void run() {

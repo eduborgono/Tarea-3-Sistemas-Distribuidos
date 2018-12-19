@@ -26,6 +26,11 @@ class BullyListener extends Thread {
     @Getter private int puerto;
     private final Queue<Operacion> opPendientes;
 
+    /**
+     * Los objetos de esta clase se manejar la conexión con los Handlers, 
+     * enviandoles mensajes, o recibiendolos.
+     * Es un Thread
+     */
     public BullyListener(Queue<Operacion> opPendientes) throws IOException {
         this.opPendientes = opPendientes;
         clientSocket = new Socket(InetAddress.getLocalHost().getHostAddress(), 7777); 
@@ -52,6 +57,9 @@ class BullyListener extends Thread {
         
     }   
     
+    /**
+     * Limpieza del thread, cierra la conexion con el Handler
+     */
     public void Dispose() {
         try {
             clientSocket.close();
@@ -60,6 +68,9 @@ class BullyListener extends Thread {
         }
     }
 
+    /**
+     * Envía un mensaje al handler para que este lo redistribuya
+     */
     public void SendOp(Operacion op) throws IOException {
         socketWriter.write(gson.toJson(op));
         socketWriter.write("\n");

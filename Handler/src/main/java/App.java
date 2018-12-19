@@ -40,6 +40,15 @@ class App {
     private String direccionIp;
     private Gson gson;
 
+
+    /**
+     * 
+     * El handler se encarga de conectar todos los clientes que existan en una máquina
+     * ya sean medicos, enfermeros o paramedicos. Recibe los mensajes de estos y los reenvía 
+     * a los otros Handlers, para que estos se encarguen de enviar los mensajes a sus destinatarios.
+     * Se puede imaginar como los supernodos de una red peer-to-peer.
+     * 
+     */
     private App() {
         machineMap = new HashMap<String, Listener>();
         cerrar = new AtomicBoolean(false);
@@ -59,6 +68,12 @@ class App {
         }
     }
 
+    /**
+     * 
+     * Función que mantiene a la espera de nuevos nodos. Cuando recibe uno se lo delega a un thread que
+     * maneja la conexion. 
+     * 
+     */
     private void Listen() {
         ReSender reSender = new ReSender();
         reSender.start();
@@ -91,6 +106,13 @@ class App {
         }
     }
 
+    /**
+     * 
+     * Función que elimina los threads cuando estos ya no se seguirán usando.
+     * En otras palabras, cuando el programa ce cierra se encarga de cerrar los
+     * threads que puedan estar corriendo ens segundo plano.
+     * 
+     */
     private void Dispose() {
         synchronized(mutexMachineMap){
             for (Map.Entry<String, Listener> entry : machineMap.entrySet()) {
@@ -113,6 +135,12 @@ class App {
         System.out.println("Xao");
     }
 
+    /**
+     * 
+     * Thread de reenvío de mensajes. Se encarga que entregar los mensajes que provengan de otros handlers
+     * o nodos.
+     * 
+     */
     private class ReSender extends Thread {
         private String ultimoSpreading;
         public void run() {
@@ -241,6 +269,11 @@ class App {
         }
     }
 
+    /**
+     * 
+     * Thread que administra la conexion de los nodos.
+     * 
+     */
     private class ClientHandler extends Thread {
         private Socket socket;
         private String id;
