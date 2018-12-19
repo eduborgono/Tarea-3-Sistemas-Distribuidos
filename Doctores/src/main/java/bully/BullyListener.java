@@ -48,7 +48,7 @@ class BullyListener extends Thread {
         try {
             while((msj = socketReader.readLine()) != null) {
                 Operacion op = gson.fromJson(msj, Operacion.class);
-                if(!Objects.equals(op.getEspecial(), Operacion.ERROR_ENTREGA) && !Objects.equals(op.getEspecial(), Operacion.ENTREGA_CORRECTA)) {
+                if(Objects.equals(op.getEspecial(), Operacion.DEFECTO)) {
                     System.out.println("\t" + op.toString());
                 }
                 opPendientes.offer(op);

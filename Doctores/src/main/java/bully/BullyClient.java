@@ -98,14 +98,8 @@ public class BullyClient {
             try {
                 Discovery();
             } catch(Exception e) { }
-            String asdasdsda = Instant.now().toString();
             while(!salir.get()) {
-                /*if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
-                    asdasdsda = Instant.now().toString();
-                    System.out.println("\t\t\t\t1 "+coordinadorDir);
-                }*/
                 if(Objects.equals(coordinadorDir, ESPERANDO_COORDINADOR_FASE_1)) {
-                    System.out.println("timeout win");
                     if(tsEleccion != null) {
                         try {
                             long diffInSeconds = Duration.between(Instant.parse(tsEleccion), Instant.now()).getSeconds();
@@ -116,10 +110,6 @@ public class BullyClient {
                     }
                 }
                 if(!opPendientes.isEmpty()) {
-                    /*if(Duration.between(Instant.parse(asdasdsda), Instant.now()).getSeconds() > 1) {
-                        asdasdsda = Instant.now().toString();
-                        System.out.println("\t\t\t\t\t2 "+coordinadorDir);
-                    }*/
                     Operacion op = opPendientes.poll();
                     switch(op.getEspecial()) {
                         case Operacion.DISCOVERY_REQUEST:
@@ -180,7 +170,7 @@ public class BullyClient {
 
                         case Operacion.ENTREGA_CORRECTA:
                             porComprobar.put(op.getId(), true);
-                            System.out.println("\t\t\tPck:"+op.getId()+"+");
+                            //System.out.println("\t\t\tPck:"+op.getId()+"+");
                             break;
 
                         case Operacion.POR_ENVIAR:
