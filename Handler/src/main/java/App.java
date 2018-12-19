@@ -146,7 +146,7 @@ class App {
         public void run() {
             Instant ultimoSpreading = Instant.now();
             while(!cerrar.get()) {
-                if(Objects.equals(direccionIp, "10.6.40.205:7777")) {
+                if(Objects.equals(direccionIp, "10.6.40.205")) {
                     if(Duration.between(ultimoSpreading, Instant.now()).getSeconds() > 20) {
                         try {
                             String archivo = Escritura.CopiarLog();
@@ -162,11 +162,10 @@ class App {
                     }
                 }
                 synchronized(mutexPendientes) {
-                    boolean skip = false;
-                    while(!opPendientes.isEmpty()) {
+                    if(!opPendientes.isEmpty()) {
                         Operacion op = opPendientes.remove();
                         if(Objects.equals(op.getEspecial(), Operacion.WRITE_FLAG)) {
-                            if(Objects.equals(direccionIp, "10.6.40.205:7777"))
+                            if(Objects.equals(direccionIp, "10.6.40.205"))
                             {
                                 try {
                                     String[] separacion = op.getProcedimeinto().split("|");
@@ -181,7 +180,7 @@ class App {
                             }
                         }
                         else if(Objects.equals(op.getEspecial(), Operacion.NUEVO_COORDINADOR_ALL)) {
-                            if(Objects.equals(direccionIp, "10.6.40.205:7777"))
+                            if(Objects.equals(direccionIp, "10.6.40.205"))
                             {
                                 try {
                                     String[] separacion = op.getProcedimeinto().split("|");
@@ -231,10 +230,8 @@ class App {
                                 }
                             }
                         }
-                        skip = true;
                     }
-                    if(skip) continue;
-                    while(!prioritarias.isEmpty()) {
+                    if(!prioritarias.isEmpty()) {
                         Operacion op = prioritarias.remove();
                         synchronized(mutexMachineMap) {
                             String[] address = op.getOrigen().split(":");
