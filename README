@@ -42,9 +42,15 @@ Consideraciones
 ---------------------
 Intrucciones para ejecutar archivos
 
-- Ejecutar Handler-all.jar en todas las maquinas, luego abrir los procesos de
+Todos los archivos .jar están dentro de la carpeta jars-tarea3
+1- Ejecutar Handler-all.jar en todas las maquinas. Una vez hecho esto se pueden abrir los procesos de
 doctores, enfermeros y paramedicos en todas las maquinas.
-- Ejecutar con java -jar Handler-all.jar
+- Ejecutar con: java -jar Handler-all.jar
+
+2- Ejecutar el resto de archivos de la misma forma.
+- Ejecutar con: java -jar [Inserte nombre archivo].jar
+
+3- Los archivos de logs, pacientes y funcionarios están en: ~/Tarea-3-Sistemas-Distribuidos/data
 
 ---------------------
 Comparación de métodos
