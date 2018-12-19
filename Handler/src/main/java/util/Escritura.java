@@ -23,7 +23,6 @@ public class Escritura {
     }
 
     public static String CopiarLog() throws IOException{
-        System.out.println(Class.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         FileReader fr = new FileReader("logs.txt");
         BufferedReader br = new BufferedReader(fr);
         String linea;

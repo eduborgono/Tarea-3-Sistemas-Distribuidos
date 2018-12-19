@@ -170,25 +170,12 @@ class App {
                             if(Objects.equals(direccionIp, "10.6.40.205"))
                             {
                                 try {
+                                    System.out.println(op.getProcedimeinto());
                                     String[] separacion = op.getProcedimeinto().split("|");
                                     Escritura.EscribirPaciente(op.getIdPaciente(), separacion[1], separacion[2]);
                                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                                     Date date = new Date();
                                     String log = "["+dateFormat.format(date)+"] "+separacion[1]+" "+separacion[0]+" "+separacion[2];
-                                    Escritura.EscribirLogFinal(log);
-                                }
-                                catch(Exception e) { e.printStackTrace(); }
-                            }
-                        }
-                        else if(Objects.equals(op.getEspecial(), Operacion.NUEVO_COORDINADOR_ALL)) {
-                            if(Objects.equals(direccionIp, "10.6.40.205"))
-                            {
-                                try {
-                                    Escritura.Aux();
-                                    String[] separacion = op.getProcedimeinto().split("|");
-                                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                                    Date date = new Date();
-                                    String log = "["+dateFormat.format(date)+"] "+separacion[1]+" "+separacion[0]+" es ahora el coordinador";
                                     Escritura.EscribirLogFinal(log);
                                 }
                                 catch(Exception e) { e.printStackTrace(); }
@@ -233,6 +220,20 @@ class App {
                     }
                     if(!prioritarias.isEmpty()) {
                         Operacion op = prioritarias.poll();
+                        if(Objects.equals(op.getEspecial(), Operacion.NUEVO_COORDINADOR_ALL)) {
+                            if(Objects.equals(direccionIp, "10.6.40.205"))
+                            {
+                                try {
+                                    Escritura.Aux();
+                                    String[] separacion = op.getProcedimeinto().split("|");
+                                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                                    Date date = new Date();
+                                    String log = "["+dateFormat.format(date)+"] "+separacion[1]+" "+separacion[0]+" es ahora el coordinador";
+                                    Escritura.EscribirLogFinal(log);
+                                }
+                                catch(Exception e) { e.printStackTrace(); }
+                            }
+                        }
                         synchronized(mutexMachineMap) {
                             String[] address = op.getOrigen().split(":");
                             if(Objects.equals(address[0], direccionIp)) {
